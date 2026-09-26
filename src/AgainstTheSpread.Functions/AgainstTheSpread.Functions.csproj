@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AgainstTheSpread.Core\AgainstTheSpread.Core.csproj" />
+    <ProjectReference Include="..\..\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>

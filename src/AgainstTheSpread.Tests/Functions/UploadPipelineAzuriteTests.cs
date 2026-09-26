@@ -30,7 +30,7 @@ public sealed class UploadPipelineAzuriteTests : IDisposable
 
     public UploadPipelineAzuriteTests()
     {
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        ExcelPackage.License.SetNonCommercialPersonal("AgainstTheSpread");
         if (!CanConnect(10000))
         {
             azuriteDirectory = Path.Combine(Path.GetTempPath(), $"ats-upload-pipeline-{Guid.NewGuid():N}");

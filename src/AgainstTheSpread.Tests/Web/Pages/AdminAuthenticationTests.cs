@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace AgainstTheSpread.Tests.Web.Pages;
 
-public class AdminAuthenticationTests : TestContext
+public class AdminAuthenticationTests : BunitContext
 {
     private const string ClientId =
         "520517828773-09fud86es46rrj48bosc2g5de1ubk46i.apps.googleusercontent.com";
@@ -31,7 +31,7 @@ public class AdminAuthenticationTests : TestContext
     public async Task GoogleCredential_AuthorizedByServer_ShowsAdminUiAndLogoutDisablesAutoSelect()
     {
         RegisterApi(HttpStatusCode.OK);
-        var cut = RenderComponent<AgainstTheSpread.Web.Pages.Admin>();
+        var cut = Render<AgainstTheSpread.Web.Pages.Admin>();
 
         await cut.InvokeAsync(() => cut.Instance.HandleGoogleCredential("google-id-token"));
 
@@ -49,7 +49,7 @@ public class AdminAuthenticationTests : TestContext
     public async Task GoogleCredential_RejectedByServer_ClearsLoginAndShowsCleanError()
     {
         RegisterApi(HttpStatusCode.Unauthorized);
-        var cut = RenderComponent<AgainstTheSpread.Web.Pages.Admin>();
+        var cut = Render<AgainstTheSpread.Web.Pages.Admin>();
 
         await cut.InvokeAsync(() => cut.Instance.HandleGoogleCredential("expired-token"));
 
@@ -63,7 +63,7 @@ public class AdminAuthenticationTests : TestContext
     {
         var handler = new SessionRaceHandler(delayFirstIdentity: true, delayUpload: false);
         RegisterApi(handler);
-        var cut = RenderComponent<AgainstTheSpread.Web.Pages.Admin>();
+        var cut = Render<AgainstTheSpread.Web.Pages.Admin>();
 
         var firstCredential = cut.InvokeAsync(
             () => cut.Instance.HandleGoogleCredential("token-a"));
@@ -83,7 +83,7 @@ public class AdminAuthenticationTests : TestContext
     {
         var handler = new SessionRaceHandler(delayFirstIdentity: false, delayUpload: true);
         RegisterApi(handler);
-        var cut = RenderComponent<AgainstTheSpread.Web.Pages.Admin>();
+        var cut = Render<AgainstTheSpread.Web.Pages.Admin>();
 
         await cut.InvokeAsync(
             () => cut.Instance.HandleGoogleCredential("token-a"));
@@ -106,7 +106,7 @@ public class AdminAuthenticationTests : TestContext
     public async Task UploadFile_InvalidDate_ShowsCellSpecificErrorAndKeepsAdminSignedIn()
     {
         RegisterApi(new ValidationErrorHandler());
-        var cut = RenderComponent<AgainstTheSpread.Web.Pages.Admin>();
+        var cut = Render<AgainstTheSpread.Web.Pages.Admin>();
         await cut.InvokeAsync(() => cut.Instance.HandleGoogleCredential("google-id-token"));
         SetPrivateField(cut.Instance, "selectedFile", new TestBrowserFile());
         cut.Render();

@@ -8,7 +8,7 @@ using NSubstitute;
 
 namespace AgainstTheSpread.Tests.Web.Pages;
 
-public class PicksDownloadFlowTests : TestContext
+public class PicksDownloadFlowTests : BunitContext
 {
     private readonly PicksApiHandler apiHandler = new();
 
@@ -139,7 +139,7 @@ public class PicksDownloadFlowTests : TestContext
 
     private IRenderedComponent<AgainstTheSpread.Web.Pages.Picks> RenderReadyPicks()
     {
-        var cut = RenderComponent<AgainstTheSpread.Web.Pages.Picks>();
+        var cut = Render<AgainstTheSpread.Web.Pages.Picks>();
 
         cut.Find("#userName").Change("iPhone User");
         cut.Find("#week").Change("1");

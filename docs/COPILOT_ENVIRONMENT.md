@@ -32,7 +32,7 @@ When GitHub Copilot coding agent works on this repository, it will automatically
 3. **Start developing:**
    ```bash
    # Start all services
-   ./start-local.sh
+   task start-local
    
    # Open http://localhost:5158 in the browser
    # Codespaces will automatically forward ports
@@ -77,7 +77,7 @@ When GitHub Copilot coding agent works on this repository, it will automatically
 
 5. **Start developing:**
    ```bash
-   ./start-local.sh
+   task start-local
    ```
 
 ## What's Included
@@ -116,7 +116,7 @@ Both options provide:
 
 ### Start All Services
 ```bash
-./start-local.sh
+task start-local
 ```
 
 This starts:
@@ -126,7 +126,7 @@ This starts:
 
 ### Stop All Services
 ```bash
-./stop-local.sh
+task stop-local
 ```
 
 ### Access the Application
@@ -163,8 +163,8 @@ dotnet test
 
 ```bash
 # Stop all services and restart
-./stop-local.sh
-./start-local.sh
+task stop-local
+task start-local
 ```
 
 ### Tests Failing

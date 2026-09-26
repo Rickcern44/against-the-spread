@@ -1,0 +1,22 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <UserSecretsId>244ed6bc-dccf-4296-93ff-93c2f133cdd6</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Azure.Functions" Version="13.5.4" />
+    <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="13.5.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\AgainstTheSpread.Functions\AgainstTheSpread.Functions.csproj" />
+    <ProjectReference Include="..\src\AgainstTheSpread.Web\AgainstTheSpread.Web.csproj" />
+  </ItemGroup>
+
+</Project>

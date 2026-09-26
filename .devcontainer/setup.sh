@@ -55,16 +55,16 @@ EOF
 fi
 
 # Make scripts executable
-chmod +x start-local.sh 2>/dev/null || true
-chmod +x stop-local.sh 2>/dev/null || true
-chmod +x validate-environment.sh 2>/dev/null || true
+chmod +x scripts/start-local.sh 2>/dev/null || true
+chmod +x scripts/stop-local.sh 2>/dev/null || true
+chmod +x scripts/validate-environment.sh 2>/dev/null || true
 
 echo ""
 echo "✅ Dev container setup complete!"
 echo ""
 echo "📚 Quick Start Guide:"
-echo "   • Start all services: ./start-local.sh"
-echo "   • Stop all services: ./stop-local.sh"
+echo "   • Start all services: task start-local"
+echo "   • Stop all services: task stop-local"
 echo "   • Run tests: cd tests && npm test"
 echo "   • Run headed tests: cd tests && npm run test:headed"
 echo ""

@@ -38,7 +38,7 @@ az staticwebapp create \
   --branch main \
   --app-location "src/AgainstTheSpread.Web" \
   --api-location "src/AgainstTheSpread.Functions" \
-  --output-location "bin/Release/net9.0/publish/wwwroot" \
+  --output-location "bin/Release/net10.0/publish/wwwroot" \
   --login-with-github
 ```
 
@@ -141,7 +141,7 @@ Your app will be available at: `https://<name>.azurestaticapps.net`
 
 ## One-Command Deployment Script
 
-Save this as `deploy-to-azure.sh` and run it:
+Save this as `scripts/deploy-to-azure.sh` and run it (or `task deploy`):
 
 ```bash
 #!/bin/bash
@@ -175,7 +175,7 @@ az staticwebapp create \
   --branch main \
   --app-location "src/AgainstTheSpread.Web" \
   --api-location "src/AgainstTheSpread.Functions" \
-  --output-location "bin/Release/net9.0/publish/wwwroot" \
+  --output-location "bin/Release/net10.0/publish/wwwroot" \
   --login-with-github \
   --output none
 
@@ -271,7 +271,7 @@ az staticwebapp show --name $PROJECT_NAME --resource-group $RESOURCE_GROUP
 
 ### Test Functions locally
 ```bash
-./start-local.sh
+task start-local
 ```
 
 ## Cost

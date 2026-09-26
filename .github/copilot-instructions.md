@@ -36,7 +36,7 @@ This is a Progressive Web Application (PWA) for managing a weekly college footba
 
 **CRITICAL: All tests must pass before any task is complete:**
 - Unit tests: `dotnet test`
-- E2E tests: `cd tests && npm test` (requires `./start-e2e.sh` running)
+- E2E tests: `cd tests && npm test` (requires `task start-e2e` running)
 - Both test suites MUST pass before committing changes
 
 **When to consider new E2E tests:**
@@ -86,7 +86,7 @@ public void MethodName_Scenario_ExpectedBehavior()
 **Running Playwright tests:**
 ```bash
 # Start E2E environment (from repo root)
-./start-e2e.sh
+task start-e2e
 
 # Install dependencies (first time only)
 cd tests
@@ -106,12 +106,12 @@ npm run test:debug
 npm run test:report
 
 # Stop E2E environment when done
-cd .. && ./stop-e2e.sh
+task stop-e2e
 ```
 
 **E2E Test Requirements:**
-- Start services with `./start-e2e.sh` (NOT `./start-local.sh`)
-- `start-e2e.sh` configures Blazor app to route API calls through SWA CLI (port 4280)
+- Start services with `task start-e2e` (NOT `task start-local`)
+- `scripts/start-e2e.sh` (`task start-e2e`) configures Blazor app to route API calls through SWA CLI (port 4280)
 - SWA CLI provides mock authentication at `/.auth/login/google`
 - Ports: 10000 (Azurite), 7071 (Functions), 5158 (Web), 4280 (SWA CLI)
 - Tests validate Excel format matches `reference-docs/Weekly Picks Example.xlsx`
@@ -128,12 +128,12 @@ dotnet build
 dotnet test
 
 # Start E2E environment and run Playwright tests
-./start-e2e.sh
+task start-e2e
 cd tests && npm test
-./stop-e2e.sh  # When done
+task stop-e2e  # When done
 
 # For regular local development (no SWA CLI needed)
-./start-local.sh
+task start-local
 ```
 
 **IMPORTANT: A coding task is NOT complete until:**
@@ -251,7 +251,7 @@ fix(web): correct game selection validation
 
 ### Security Considerations
 
-**Admin endpoints require Google authentication** (see `AUTHENTICATION_FIX.md`); weekly/bowl read and picks-generation APIs stay anonymous by design. Beyond that:
+**Admin endpoints require Google authentication** (see `docs/AUTHENTICATION_FIX.md`); weekly/bowl read and picks-generation APIs stay anonymous by design. Beyond that:
 - Validate all inputs
 - Set appropriate CORS policies
 - Enforce file size limits
@@ -269,7 +269,7 @@ fix(web): correct game selection validation
 **Key files to maintain:**
 - `README.md` - Project overview and setup
 - `CONTRIBUTING.md` - Development workflow
-- `TESTING.md` - Testing strategy
+- `docs/TESTING.md` - Testing strategy
 - `.agents.md` - Agent development guide
 
 ### Performance
@@ -331,7 +331,7 @@ fix(web): correct game selection validation
 
 **Documentation:**
 - `.agents.md` - Comprehensive agent guide
-- `TESTING.md` - Complete testing guide (unit tests)
+- `docs/TESTING.md` - Complete testing guide (unit tests)
 - `CONTRIBUTING.md` - Contribution guidelines
 
 **E2E Testing (Playwright):**
@@ -340,7 +340,7 @@ fix(web): correct game selection validation
 - `tests/pages/admin-page.ts` - Admin page object model
 - `tests/pages/picks-page.ts` - Picks page object model
 - `tests/helpers/` - Test utilities and validators
-- `start-e2e.sh` / `stop-e2e.sh` - E2E environment scripts
+- `scripts/start-e2e.sh` (`task start-e2e`) / `scripts/stop-e2e.sh` (`task stop-e2e`) - E2E environment scripts
 
 ### Common Pitfalls to Avoid
 

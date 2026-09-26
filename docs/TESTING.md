@@ -15,9 +15,9 @@ This project uses two types of automated tests:
 dotnet test
 
 # Run E2E tests (2+ tests)
-./start-e2e.sh
+task start-e2e
 cd tests && npm test
-./stop-e2e.sh
+task stop-e2e
 ```
 
 ## Unit Test Structure
@@ -419,13 +419,13 @@ Before merging:
 
 ## End-to-End Testing (Playwright)
 
-For complete E2E testing documentation, see **[`tests/README.md`](tests/README.md)**.
+For complete E2E testing documentation, see **[`tests/README.md`](../tests/README.md)**.
 
 ### Quick Reference
 
 ```bash
 # Start E2E environment
-./start-e2e.sh
+task start-e2e
 
 # Run E2E tests
 cd tests && npm test
@@ -437,7 +437,7 @@ npm run test:headed
 npm run test:debug
 
 # Stop E2E environment
-cd .. && ./stop-e2e.sh
+task stop-e2e
 ```
 
 ### Key E2E Test Files
@@ -449,8 +449,8 @@ cd .. && ./stop-e2e.sh
 | `tests/pages/admin-page.ts` | Admin page object model |
 | `tests/pages/picks-page.ts` | Picks page object model |
 | `tests/helpers/` | Test utilities and validators |
-| `start-e2e.sh` | Start E2E environment |
-| `stop-e2e.sh` | Stop E2E environment |
+| `scripts/start-e2e.sh` (`task start-e2e`) | Start E2E environment |
+| `scripts/stop-e2e.sh` (`task stop-e2e`) | Stop E2E environment |
 
 ### When to Add E2E Tests
 

@@ -11,7 +11,7 @@ public class BowlExcelService : IBowlExcelService
 {
     public BowlExcelService()
     {
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        ExcelPackage.License.SetNonCommercialPersonal("AgainstTheSpread");
     }
 
     /// <summary>

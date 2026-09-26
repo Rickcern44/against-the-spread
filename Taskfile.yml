@@ -1,0 +1,50 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Build the solution
+    cmds:
+      - dotnet build AgainstTheSpread.sln
+
+  test:
+    desc: Run unit + component tests
+    cmds:
+      - dotnet test AgainstTheSpread.sln
+
+  start-local:
+    desc: Start the local dev stack (Azurite, Functions, Blazor) without E2E/SWA CLI
+    cmds:
+      - ./scripts/start-local.sh
+
+  stop-local:
+    desc: Stop the local dev stack
+    cmds:
+      - ./scripts/stop-local.sh
+
+  start-e2e:
+    desc: Start the full local stack for E2E (adds SWA CLI proxy on :4280)
+    cmds:
+      - ./scripts/start-e2e.sh
+
+  stop-e2e:
+    desc: Stop the E2E stack and restore Development config
+    cmds:
+      - ./scripts/stop-e2e.sh
+
+  e2e:
+    desc: Run the full local E2E flow (start stack, typecheck, Playwright, stop stack)
+    cmds:
+      - ./scripts/start-e2e.sh
+      - cd tests && npm exec -- tsc -p tsconfig.json --noEmit
+      - cd tests && npm test
+      - ./scripts/stop-e2e.sh
+
+  validate-environment:
+    desc: Sanity-check that the local environment can build and run all services
+    cmds:
+      - ./scripts/validate-environment.sh
+
+  deploy:
+    desc: Provision Azure resources and wire up GitHub deployment secrets
+    cmds:
+      - ./scripts/deploy-to-azure.sh

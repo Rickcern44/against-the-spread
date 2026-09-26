@@ -8,7 +8,7 @@ using NSubstitute;
 
 namespace AgainstTheSpread.Tests.Web.Pages;
 
-public class BowlPicksDownloadFlowTests : TestContext
+public class BowlPicksDownloadFlowTests : BunitContext
 {
     private readonly BowlPicksApiHandler apiHandler = new();
 
@@ -39,7 +39,7 @@ public class BowlPicksDownloadFlowTests : TestContext
     [Fact]
     public void GenerateBowlPicks_KeepsWorkbookAvailableForUserActivatedDownload()
     {
-        var cut = RenderComponent<AgainstTheSpread.Web.Pages.BowlPicks>();
+        var cut = Render<AgainstTheSpread.Web.Pages.BowlPicks>();
 
         cut.Find("#userName").Change("iPhone User");
         cut.Find("button.btn-primary.btn-lg").Click();
@@ -64,7 +64,7 @@ public class BowlPicksDownloadFlowTests : TestContext
     [Fact]
     public void ChangingValidPick_InvalidatesGeneratedWorkbook()
     {
-        var cut = RenderComponent<AgainstTheSpread.Web.Pages.BowlPicks>();
+        var cut = Render<AgainstTheSpread.Web.Pages.BowlPicks>();
 
         cut.Find("#userName").Change("iPhone User");
         cut.Find("button.btn-primary.btn-lg").Click();
@@ -87,7 +87,7 @@ public class BowlPicksDownloadFlowTests : TestContext
     [Fact]
     public async Task ChangingValidPick_DuringGeneration_DoesNotExposeStaleWorkbook()
     {
-        var cut = RenderComponent<AgainstTheSpread.Web.Pages.BowlPicks>();
+        var cut = Render<AgainstTheSpread.Web.Pages.BowlPicks>();
 
         cut.Find("#userName").Change("iPhone User");
         cut.Find("button.btn-primary.btn-lg").Click();
@@ -117,7 +117,7 @@ public class BowlPicksDownloadFlowTests : TestContext
     [Fact]
     public async Task GoingBack_DuringGeneration_DiscardsCompletedWorkbook()
     {
-        var cut = RenderComponent<AgainstTheSpread.Web.Pages.BowlPicks>();
+        var cut = Render<AgainstTheSpread.Web.Pages.BowlPicks>();
 
         cut.Find("#userName").Change("iPhone User");
         cut.Find("button.btn-primary.btn-lg").Click();
@@ -144,7 +144,7 @@ public class BowlPicksDownloadFlowTests : TestContext
     [Fact]
     public async Task GoingBack_DuringFailedGeneration_IgnoresStaleError()
     {
-        var cut = RenderComponent<AgainstTheSpread.Web.Pages.BowlPicks>();
+        var cut = Render<AgainstTheSpread.Web.Pages.BowlPicks>();
 
         cut.Find("#userName").Change("iPhone User");
         cut.Find("button.btn-primary.btn-lg").Click();
@@ -169,7 +169,7 @@ public class BowlPicksDownloadFlowTests : TestContext
     [Fact]
     public async Task ReloadingAfterBack_DuringGeneration_IgnoresStaleTransportError()
     {
-        var cut = RenderComponent<AgainstTheSpread.Web.Pages.BowlPicks>();
+        var cut = Render<AgainstTheSpread.Web.Pages.BowlPicks>();
 
         cut.Find("#userName").Change("iPhone User");
         cut.Find("button.btn-primary.btn-lg").Click();

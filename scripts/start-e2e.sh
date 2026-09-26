@@ -12,8 +12,8 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Get the directory where this script is located
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Get the repo root (this script lives in scripts/)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 # Function to check if a port is in use
 check_port() {
@@ -130,4 +130,4 @@ echo "  - Blazor Web App:        http://localhost:5158"
 echo "  - SWA CLI (Entry Point): http://localhost:4280"
 echo ""
 echo "To run E2E tests: cd tests && npm test"
-echo "To stop services: ./stop-e2e.sh"
+echo "To stop services: ./scripts/stop-e2e.sh"

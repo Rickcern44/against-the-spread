@@ -30,7 +30,7 @@ az staticwebapp create \
   --branch main \
   --app-location "src/AgainstTheSpread.Web" \
   --api-location "src/AgainstTheSpread.Functions" \
-  --output-location "bin/Release/net9.0/publish/wwwroot" \
+  --output-location "bin/Release/net10.0/publish/wwwroot" \
   --login-with-github \
   --output none
 

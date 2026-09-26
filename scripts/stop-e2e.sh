@@ -1,7 +1,7 @@
 #!/bin/bash
 # Stop all E2E test services
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 echo "🛑 Stopping E2E test services..."
 

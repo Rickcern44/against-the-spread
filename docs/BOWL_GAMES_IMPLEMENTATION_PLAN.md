@@ -952,9 +952,9 @@ Key test scenarios:
 ### Testing Checkpoint 6
 ```bash
 # Run E2E tests:
-./start-e2e.sh
+task start-e2e
 cd tests && npm test
-./stop-e2e.sh
+task stop-e2e
 ```
 
 ---
@@ -1076,9 +1076,9 @@ Expected: All 175+ existing tests + new bowl tests pass.
 
 ### Checkpoint 6: E2E Tests Complete
 ```bash
-./start-e2e.sh
+task start-e2e
 cd tests && npm test
-./stop-e2e.sh
+task stop-e2e
 ```
 Expected: All E2E tests pass, including new bowl flow.
 

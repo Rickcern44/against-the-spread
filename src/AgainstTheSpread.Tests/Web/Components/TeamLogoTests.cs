@@ -6,7 +6,7 @@ using NSubstitute;
 
 namespace AgainstTheSpread.Tests.Web.Components;
 
-public class TeamLogoTests : TestContext
+public class TeamLogoTests : BunitContext
 {
     private readonly ITeamLogoService _logoServiceMock;
 
@@ -25,7 +25,7 @@ public class TeamLogoTests : TestContext
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
         // Act
-        var cut = RenderComponent<TeamLogo>(parameters => parameters
+        var cut = Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, teamName));
 
         // Assert
@@ -43,7 +43,7 @@ public class TeamLogoTests : TestContext
         _logoServiceMock.GetLogoUrl(teamName).Returns((string?)null);
 
         // Act
-        var cut = RenderComponent<TeamLogo>(parameters => parameters
+        var cut = Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, teamName));
 
         // Assert
@@ -57,7 +57,7 @@ public class TeamLogoTests : TestContext
         _logoServiceMock.GetLogoUrl(null).Returns((string?)null);
 
         // Act
-        var cut = RenderComponent<TeamLogo>(parameters => parameters
+        var cut = Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, (string?)null));
 
         // Assert
@@ -71,7 +71,7 @@ public class TeamLogoTests : TestContext
         _logoServiceMock.GetLogoUrl("").Returns((string?)null);
 
         // Act
-        var cut = RenderComponent<TeamLogo>(parameters => parameters
+        var cut = Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, ""));
 
         // Assert
@@ -87,7 +87,7 @@ public class TeamLogoTests : TestContext
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
         // Act
-        var cut = RenderComponent<TeamLogo>(parameters => parameters
+        var cut = Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, teamName));
 
         // Assert
@@ -105,7 +105,7 @@ public class TeamLogoTests : TestContext
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
         // Act
-        var cut = RenderComponent<TeamLogo>(parameters => parameters
+        var cut = Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, teamName)
             .Add(p => p.CssClass, customClass));
 
@@ -123,7 +123,7 @@ public class TeamLogoTests : TestContext
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
         // Act
-        var cut = RenderComponent<TeamLogo>(parameters => parameters
+        var cut = Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, teamName));
 
         // Assert
@@ -145,7 +145,7 @@ public class TeamLogoTests : TestContext
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
         // Act
-        var cut = RenderComponent<TeamLogo>(parameters => parameters
+        var cut = Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, teamName)
             .Add(p => p.Style, customStyle));
 
@@ -163,7 +163,7 @@ public class TeamLogoTests : TestContext
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
         // Act
-        var cut = RenderComponent<TeamLogo>(parameters => parameters
+        var cut = Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, teamName));
 
         // Assert
@@ -185,9 +185,9 @@ public class TeamLogoTests : TestContext
         _logoServiceMock.GetLogoUrl(team2).Returns(logo2);
 
         // Act
-        var cut1 = RenderComponent<TeamLogo>(parameters => parameters
+        var cut1 = Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, team1));
-        var cut2 = RenderComponent<TeamLogo>(parameters => parameters
+        var cut2 = Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, team2));
 
         // Assert
@@ -208,7 +208,7 @@ public class TeamLogoTests : TestContext
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
         // Act
-        RenderComponent<TeamLogo>(parameters => parameters
+        Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, teamName));
 
         // Assert - Component may call service multiple times during render
@@ -227,7 +227,7 @@ public class TeamLogoTests : TestContext
         _logoServiceMock.GetLogoUrl(teamName).Returns(expectedUrl);
 
         // Act
-        var cut = RenderComponent<TeamLogo>(parameters => parameters
+        var cut = Render<TeamLogo>(parameters => parameters
             .Add(p => p.TeamName, teamName));
 
         // Assert

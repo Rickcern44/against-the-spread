@@ -18,7 +18,7 @@ The dev container provides a complete, isolated development environment that wor
 
 ### 2. Helper Scripts
 
-#### `validate-environment.sh`
+#### `scripts/validate-environment.sh` (`task validate-environment`)
 A comprehensive validation script that tests:
 - ✅ Azurite (Azure Storage Emulator) starts correctly
 - ✅ .NET solution builds successfully
@@ -29,10 +29,10 @@ A comprehensive validation script that tests:
 
 **Usage:**
 ```bash
-./validate-environment.sh
+task validate-environment
 ```
 
-#### Updated `stop-local.sh`
+#### Updated `scripts/stop-local.sh` (`task stop-local`)
 Fixed to stop services on the correct port (5158 instead of 5000).
 
 ### 3. Documentation
@@ -147,7 +147,7 @@ Everything runs locally - no firewall issues!
 1. Go to the repository on GitHub
 2. Click "Code" → "Codespaces" → "Create codespace"
 3. Wait 5-10 minutes for setup to complete
-4. Run `./start-local.sh`
+4. Run `task start-local`
 5. Open http://localhost:5158
 
 ### Option 2: VS Code Dev Container
@@ -159,7 +159,7 @@ Everything runs locally - no firewall issues!
 4. Open in VS Code
 5. Click "Reopen in Container" when prompted
 6. Wait 5-10 minutes for setup
-7. Run `./start-local.sh`
+7. Run `task start-local`
 8. Open http://localhost:5158
 
 ## Running Tests
@@ -167,7 +167,7 @@ Everything runs locally - no firewall issues!
 ### Validate Environment
 ```bash
 # Test that all services can start
-./validate-environment.sh
+task validate-environment
 ```
 
 ### Run Playwright Tests
@@ -229,13 +229,13 @@ The dev container matches the CI environment exactly:
 
 ```bash
 # Stop everything
-./stop-local.sh
+task stop-local
 
 # Validate environment
-./validate-environment.sh
+task validate-environment
 
 # Start again
-./start-local.sh
+task start-local
 ```
 
 ### Tests Fail
@@ -262,7 +262,7 @@ lsof -i :7071
 kill $(lsof -t -i:7071)
 
 # Or use stop script
-./stop-local.sh
+task stop-local
 ```
 
 ## Maintenance

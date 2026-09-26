@@ -18,7 +18,7 @@ Both can safely use year 2025 without conflicts.
 - **Base URL**: `http://localhost:4280` (SWA CLI with mock auth)
 
 ### Services Required
-All four services must be running (started via `./start-e2e.sh`):
+All four services must be running (started via `task start-e2e`):
 1. **Azurite** (port 10000) - Storage emulator
 2. **Azure Functions** (port 7071) - Backend API
 3. **Blazor Web App** (port 5158) - Frontend
@@ -105,7 +105,7 @@ If bowl tests leave state that breaks regular season tests, this would be the is
 ### Step 1: Run Locally
 ```bash
 # Start services
-./start-e2e.sh
+task start-e2e
 
 # In another terminal
 cd tests

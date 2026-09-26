@@ -69,7 +69,7 @@ jobs:
           EOF
 
       - name: Start E2E environment
-        run: ./start-e2e.sh
+        run: ./scripts/start-e2e.sh
 
       - name: Run E2E tests
         working-directory: tests

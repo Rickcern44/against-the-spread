@@ -2,6 +2,9 @@
 
 # Against The Spread - Local Development Startup Script
 
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+cd "$REPO_ROOT"
+
 echo "🏈 Starting Against The Spread Local Development Environment..."
 echo ""
 
@@ -61,7 +64,7 @@ echo ""
 echo "🔗 Open in browser: http://localhost:5158"
 echo ""
 echo "⏹️  To stop all services:"
-echo "   ./stop-local.sh"
+echo "   ./scripts/stop-local.sh"
 echo ""
 echo "Press Ctrl+C to view logs, or close terminal to keep running in background"
 echo ""

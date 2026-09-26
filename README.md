@@ -56,7 +56,7 @@ We provide multiple ways to work with this repository using GitHub Copilot:
 - ✅ **VS Code Dev Container**: Docker-based local development with all tools pre-installed
 - ✅ **Pre-configured**: .NET (SDK pinned in `global.json`), Node.js, Azure Functions, Azurite, Playwright
 - ✅ **No Firewall Issues**: All services run locally/in-cloud
-- ✅ **One-Click Start**: `./start-local.sh` starts everything
+- ✅ **One-Click Start**: `task start-local` starts everything
 
 **👉 [See COPILOT_ENVIRONMENT.md for detailed instructions](COPILOT_ENVIRONMENT.md)**
 
@@ -101,12 +101,12 @@ See [CONSOLIDATION_RUNBOOK.md](CONSOLIDATION_RUNBOOK.md) for the authoritative p
 The supported local integration path starts Azurite, Functions, Blazor, and the SWA proxy:
 
 ```bash
-./start-e2e.sh
+task start-e2e
 cd tests
 npm exec -- tsc -p tsconfig.json --noEmit
 npm test
 cd ..
-./stop-e2e.sh
+task stop-e2e
 ```
 
 Browser fixture flows seed only local Azurite and never bypass production authorization. Real Google token validation must be tested separately with a registered local JavaScript origin and an allowlisted account. See `LOCAL_DEV_AUTH.md` and `tests/README.md`.

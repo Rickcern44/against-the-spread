@@ -141,7 +141,7 @@ Your app will be available at: `https://<name>.azurestaticapps.net`
 
 ## One-Command Deployment Script
 
-Save this as `deploy-to-azure.sh` and run it:
+Save this as `scripts/deploy-to-azure.sh` and run it (or `task deploy`):
 
 ```bash
 #!/bin/bash
@@ -271,7 +271,7 @@ az staticwebapp show --name $PROJECT_NAME --resource-group $RESOURCE_GROUP
 
 ### Test Functions locally
 ```bash
-./start-local.sh
+task start-local
 ```
 
 ## Cost

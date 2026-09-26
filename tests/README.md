@@ -33,15 +33,15 @@ npx playwright install chromium
 From the repository root:
 
 ```bash
-./start-e2e.sh
+task start-e2e
 cd tests
 npm exec -- tsc -p tsconfig.json --noEmit
 npm test
 cd ..
-./stop-e2e.sh
+task stop-e2e
 ```
 
-The stack uses ports 10000 (Azurite), 7071 (Functions), 5158 (Blazor), and 4280 (SWA proxy). Run it only where those listeners are owned by this checkout. `stop-e2e.sh` uses process-name matching and is intended for an isolated local or CI runner.
+The stack uses ports 10000 (Azurite), 7071 (Functions), 5158 (Blazor), and 4280 (SWA proxy). Run it only where those listeners are owned by this checkout. `scripts/stop-e2e.sh` (`task stop-e2e`) uses process-name matching and is intended for an isolated local or CI runner.
 
 ## Configuration
 

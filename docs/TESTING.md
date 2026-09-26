@@ -419,7 +419,7 @@ Before merging:
 
 ## End-to-End Testing (Playwright)
 
-For complete E2E testing documentation, see **[`tests/README.md`](tests/README.md)**.
+For complete E2E testing documentation, see **[`tests/README.md`](../tests/README.md)**.
 
 ### Quick Reference
 

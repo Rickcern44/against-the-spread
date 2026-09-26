@@ -47,4 +47,4 @@ The stack uses ports 10000 (Azurite), 7071 (Functions), 5158 (Blazor), and 4280 
 
 Playwright uses `http://localhost:4280`, Chromium, one worker, failure screenshots/video, and first-retry traces. The fixture seeder accepts only the standard `UseDevelopmentStorage=true` Azurite connection string and fails closed for remote storage targets.
 
-Real release acceptance additionally requires production Google token validation, allowlist authorization, upload/readback safety, service-worker update checks, and a physical installed-iPhone share-sheet/Save-to-Files check. See `../CONSOLIDATION_RUNBOOK.md`.
+Real release acceptance additionally requires production Google token validation, allowlist authorization, upload/readback safety, service-worker update checks, and a physical installed-iPhone share-sheet/Save-to-Files check. See `../docs/CONSOLIDATION_RUNBOOK.md`.

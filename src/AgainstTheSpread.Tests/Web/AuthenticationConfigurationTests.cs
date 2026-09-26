@@ -28,7 +28,7 @@ public class AuthenticationConfigurationTests
         document.TryGetProperty("auth", out _).Should().BeFalse();
         document.TryGetProperty("responseOverrides", out _).Should().BeFalse();
         document.GetProperty("platform").GetProperty("apiRuntime").GetString()
-            .Should().Be("dotnet-isolated:9.0");
+            .Should().Be("dotnet-isolated:10.0");
 
         var serialized = document.GetRawText();
         serialized.Should().NotContain(".auth");

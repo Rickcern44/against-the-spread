@@ -35,6 +35,10 @@ builder.Services.AddSingleton<IExcelService, ExcelService>();
 builder.Services.AddSingleton<IBowlExcelService, BowlExcelService>();
 builder.Services.AddSingleton<IGoogleIdTokenValidator, GoogleIdTokenValidator>();
 builder.Services.AddSingleton<IAdminAuthorizationService, AdminAuthorizationService>();
+builder.Services.AddHttpClient<EspnLiveLinesProvider>();
+builder.Services.AddHttpClient<EspnLiveResultsProvider>();
+builder.Services.AddSingleton<ILinesProvider>(sp => sp.GetRequiredService<EspnLiveLinesProvider>());
+builder.Services.AddSingleton<IResultsProvider>(sp => sp.GetRequiredService<EspnLiveResultsProvider>());
 builder.Services.AddSingleton<IStorageService>(sp =>
 {
     // Use AZURE_STORAGE_CONNECTION_STRING for custom storage, fallback to AzureWebJobsStorage for local dev
@@ -46,5 +50,6 @@ builder.Services.AddSingleton<IStorageService>(sp =>
     var logger = sp.GetRequiredService<ILogger<StorageService>>();
     return new StorageService(connectionString, excelService, bowlExcelService, logger);
 });
+builder.Services.AddSingleton<WeeklyIngestionService>();
 
 builder.Build().Run();

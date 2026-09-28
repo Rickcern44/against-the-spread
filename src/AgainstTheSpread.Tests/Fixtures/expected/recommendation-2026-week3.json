@@ -1,0 +1,146 @@
+{
+ "fixture": "recommendation-2026-week3",
+ "description": "Expected output of the starter-recommendation engine for the coach's 2026 roster in week 3, computed from the pinned spread->win-probability function. Phase 3's acceptance test asserts this ordering and this tiebreak.",
+ "source": "derived from expected/lines-2026-week3.json + roster-2026.json using the conversion function pinned in docs/swan-league-spec.md \u00a77",
+ "conversionFunction": {
+  "model": "normal CDF over expected margin",
+  "sigma": 13.5,
+  "erfApproximation": "Abramowitz & Stegun 7.1.26",
+  "roundingForAssertions": "4 decimal places"
+ },
+ "season": 2026,
+ "week": 3,
+ "byeTeams": [],
+ "evRanking": [
+  {
+   "team": "DET",
+   "displayName": "Detroit Lions",
+   "pointValue": 4,
+   "eventId": "401872954",
+   "game": "NYJ @ DET",
+   "line": "DET -7",
+   "isFavorite": true,
+   "expectedMargin": 7.0,
+   "winProbability": 0.698,
+   "expectedValue": 2.7918
+  },
+  {
+   "team": "NO",
+   "displayName": "New Orleans Saints",
+   "pointValue": 4,
+   "eventId": "401872961",
+   "game": "LV @ NO",
+   "line": "NO -3.5",
+   "isFavorite": true,
+   "expectedMargin": 3.5,
+   "winProbability": 0.6023,
+   "expectedValue": 2.4091
+  },
+  {
+   "team": "KC",
+   "displayName": "Kansas City Chiefs",
+   "pointValue": 3,
+   "eventId": "401872952",
+   "game": "KC @ MIA",
+   "line": "KC -10",
+   "isFavorite": true,
+   "expectedMargin": 10.0,
+   "winProbability": 0.7706,
+   "expectedValue": 2.3117
+  },
+  {
+   "team": "NYG",
+   "displayName": "New York Giants",
+   "pointValue": 4,
+   "eventId": "401872956",
+   "game": "TEN @ NYG",
+   "line": "NYG -2.5",
+   "isFavorite": true,
+   "expectedMargin": 2.5,
+   "winProbability": 0.5735,
+   "expectedValue": 2.2938
+  },
+  {
+   "team": "SF",
+   "displayName": "San Francisco 49ers",
+   "pointValue": 3,
+   "eventId": "401872958",
+   "game": "ARI @ SF",
+   "line": "SF -7.5",
+   "isFavorite": true,
+   "expectedMargin": 7.5,
+   "winProbability": 0.7107,
+   "expectedValue": 2.1322
+  },
+  {
+   "team": "CIN",
+   "displayName": "Cincinnati Bengals",
+   "pointValue": 3,
+   "eventId": "401872950",
+   "game": "CIN @ PIT",
+   "line": "CIN -3.5",
+   "isFavorite": true,
+   "expectedMargin": 3.5,
+   "winProbability": 0.6023,
+   "expectedValue": 1.8068
+  },
+  {
+   "team": "MIN",
+   "displayName": "Minnesota Vikings",
+   "pointValue": 3,
+   "eventId": "401872959",
+   "game": "MIN @ TB",
+   "line": "TB -1.5",
+   "isFavorite": false,
+   "expectedMargin": -1.5,
+   "winProbability": 0.4558,
+   "expectedValue": 1.3673
+  },
+  {
+   "team": "BAL",
+   "displayName": "Baltimore Ravens",
+   "pointValue": 2,
+   "eventId": "401872960",
+   "game": "BAL VS DAL",
+   "line": "BAL -3",
+   "isFavorite": true,
+   "expectedMargin": 3.0,
+   "winProbability": 0.5879,
+   "expectedValue": 1.1759
+  },
+  {
+   "team": "LAR",
+   "displayName": "Los Angeles Rams",
+   "pointValue": 2,
+   "eventId": "401872962",
+   "game": "LAR @ DEN",
+   "line": "DEN -1.5",
+   "isFavorite": false,
+   "expectedMargin": -1.5,
+   "winProbability": 0.4558,
+   "expectedValue": 0.9115
+  }
+ ],
+ "tiebreak": {
+  "triggered": true,
+  "contestedSlot": 3,
+  "candidates": [
+   "KC",
+   "NYG"
+  ],
+  "evGap": 0.0179,
+  "thresholdEv": 0.05,
+  "perfectWeekProbability": {
+   "KC": 0.324,
+   "NYG": 0.2411
+  },
+  "winner": "KC",
+  "explanation": "KC (EV 2.3117) and NYG (EV 2.2938) are within 0.0179 EV, inside the ~0.05 band, so the third slot is decided on perfect-week probability with DET and NO locked."
+ },
+ "recommendedStarters": [
+  "DET",
+  "NO",
+  "KC"
+ ],
+ "stabilityNote": "The recommended trio is stable for sigma in [13.0, 14.5]. At sigma=14.5 the raw-EV order of the two tiebreak candidates flips, but the perfect-week tiebreak still selects the same team - which is what the acceptance test should assert, not the raw EV order."
+}

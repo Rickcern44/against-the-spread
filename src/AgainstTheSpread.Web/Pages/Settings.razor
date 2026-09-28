@@ -1,0 +1,86 @@
+@page "/settings"
+@using System.Text.Json
+@using AgainstTheSpread.Core.Fixtures
+@using AgainstTheSpread.Core.Models
+@inject LocalStorageService Storage
+@inject ISnackbar Snackbar
+
+<PageTitle>Settings</PageTitle>
+
+<div class="page-eyebrow">Roster</div>
+<h1 class="page-heading">Settings</h1>
+<p class="page-subtitle">Pick your teams for the season. These drive the ranked recommendations on your weekly picks.</p>
+
+<MudPaper Class="surface-panel" Elevation="0">
+    <div class="panel-header">
+        <h2 class="section-heading">Your teams</h2>
+        <span class="roster-count mono @(selected.Count == RosterSize ? "ok" : "")">@selected.Count / @RosterSize selected</span>
+    </div>
+
+    <MudTextField T="string" Placeholder="Filter teams…" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                  Immediate="true" ValueChanged="OnFilterChanged" Class="mb-4" />
+
+    <div class="team-grid">
+        @foreach (var team in FilteredTeams)
+        {
+            var isSelected = selected.Contains(team.Id);
+            <button type="button" class="team-tile @(isSelected ? "is-selected" : "")" @onclick="() => Toggle(team.Id)">
+                <span class="team-tier-bar" style="background:@team.TierColorHex"></span>
+                <span class="team-name">@team.DisplayName</span>
+                <span class="team-meta mono">Tier @team.PointValue · Bye @team.ByeWeek</span>
+                @if (isSelected)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Class="team-check" Size="Size.Small" />
+                }
+            </button>
+        }
+    </div>
+
+    <div class="d-flex justify-end mt-4">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="@saving">
+            @(saving ? "Saving…" : "Save roster")
+        </MudButton>
+    </div>
+</MudPaper>
+
+@code {
+    private const int RosterSize = SeasonRoster.RequiredTeamCount;
+    private const string StorageKey = "ats.roster.v1";
+
+    private readonly HashSet<string> selected = new(StringComparer.OrdinalIgnoreCase);
+    private string filter = "";
+    private bool saving;
+
+    private IEnumerable<Team> FilteredTeams => string.IsNullOrWhiteSpace(filter)
+        ? NflTeamDirectory.AllTeams
+        : NflTeamDirectory.AllTeams.Where(t => t.DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        var stored = await Storage.GetAsync(StorageKey);
+        if (stored is not null)
+        {
+            foreach (var id in JsonSerializer.Deserialize<string[]>(stored) ?? []) selected.Add(id);
+        }
+    }
+
+    private void OnFilterChanged(string value) => filter = value;
+
+    private void Toggle(string teamId)
+    {
+        if (!selected.Remove(teamId) && selected.Count < RosterSize) selected.Add(teamId);
+    }
+
+    private async Task SaveAsync()
+    {
+        if (selected.Count != RosterSize)
+        {
+            Snackbar.Add($"Choose exactly {RosterSize} teams before saving.", Severity.Warning);
+            return;
+        }
+        saving = true;
+        await Storage.SetAsync(StorageKey, JsonSerializer.Serialize(selected));
+        saving = false;
+        Snackbar.Add("Roster saved.", Severity.Success);
+    }
+}

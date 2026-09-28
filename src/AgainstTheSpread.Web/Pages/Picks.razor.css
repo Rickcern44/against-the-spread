@@ -1,0 +1,66 @@
+::deep .week-select {
+    max-width: 220px;
+}
+
+::deep .recommendation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: .75rem;
+}
+
+::deep .recommendation-card {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    background: var(--ats-surface);
+    border: 1px solid var(--ats-line);
+    border-radius: 12px;
+    padding: .9rem 1.1rem;
+}
+
+::deep .recommendation-rank {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--ats-gold);
+    min-width: 2.2rem;
+}
+
+::deep .recommendation-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    min-width: 0;
+}
+
+::deep .recommendation-team {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-weight: 600;
+}
+
+::deep .recommendation-meta {
+    font-size: .75rem;
+    color: var(--ats-text-dim);
+}
+
+::deep .recommendation-ev {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
+}
+
+::deep .ev-label {
+    font-size: .6rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ats-text-dim);
+}
+
+::deep .ev-value {
+    color: var(--ats-teal);
+    font-weight: 600;
+}

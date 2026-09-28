@@ -324,7 +324,7 @@ Edit `.devcontainer/devcontainer.json`:
 
 If you encounter issues:
 1. Check the [main README](../README.md)
-2. Review [TESTING.md](../docs/TESTING.md) for test-specific help
+2. Review [TESTING.md](../docs/deprecated/TESTING.md) for test-specific help
 3. Open an issue on GitHub
 4. Check the troubleshooting section above
 

@@ -20,6 +20,7 @@ public class StorageService : IStorageService
     private const string ContainerName = "gamefiles";
     private const string LinesFolder = "lines";
     private const string BowlLinesFolder = "bowl-lines";
+    private static readonly JsonSerializerOptions SeasonJson = new() { WriteIndented = true, PropertyNameCaseInsensitive = true };
 
     public StorageService(string connectionString, IExcelService excelService, ILogger<StorageService> logger)
         : this(connectionString, excelService, null, logger)
@@ -33,6 +34,42 @@ public class StorageService : IStorageService
         _excelService = excelService;
         _bowlExcelService = bowlExcelService;
         _logger = logger;
+    }
+
+    // Single-user season layout. Legacy lines/ remains only for the existing web endpoint and
+    // the commissioner workbook override; no new ingestion writes to the broadcast layout.
+    public Task SaveRosterAsync(SeasonRoster roster, CancellationToken cancellationToken = default) =>
+        WriteSeasonAsync($"seasons/{roster.Season}/roster.json", roster, cancellationToken);
+
+    public Task<SeasonRoster?> GetRosterAsync(int season, CancellationToken cancellationToken = default) =>
+        ReadSeasonAsync<SeasonRoster>($"seasons/{season}/roster.json", cancellationToken);
+
+    public Task SaveWeeklyGamesAsync(int season, int week, IReadOnlyList<WeeklyGame> games, CancellationToken cancellationToken = default)
+    {
+        foreach (var game in games) { if (game.Week != week) throw new ArgumentException("Every game must belong to the target week.", nameof(games)); game.Validate(); }
+        return WriteSeasonAsync($"seasons/{season}/weeks/{week}/games.json", games, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<WeeklyGame>?> GetWeeklyGamesAsync(int season, int week, CancellationToken cancellationToken = default) =>
+        await ReadSeasonAsync<List<WeeklyGame>>($"seasons/{season}/weeks/{week}/games.json", cancellationToken);
+
+    public Task SaveWeeklyPickAsync(int season, WeeklyPick pick, CancellationToken cancellationToken = default) =>
+        WriteSeasonAsync($"seasons/{season}/weeks/{pick.Week}/pick.json", pick, cancellationToken);
+
+    public Task<WeeklyPick?> GetWeeklyPickAsync(int season, int week, CancellationToken cancellationToken = default) =>
+        ReadSeasonAsync<WeeklyPick>($"seasons/{season}/weeks/{week}/pick.json", cancellationToken);
+
+    private async Task WriteSeasonAsync<T>(string name, T value, CancellationToken cancellationToken)
+    {
+        await _containerClient.CreateIfNotExistsAsync(PublicAccessType.None, cancellationToken: cancellationToken);
+        await _containerClient.GetBlobClient(name).UploadAsync(BinaryData.FromString(JsonSerializer.Serialize(value, SeasonJson)), overwrite: true, cancellationToken: cancellationToken);
+    }
+
+    private async Task<T?> ReadSeasonAsync<T>(string name, CancellationToken cancellationToken)
+    {
+        var blob = _containerClient.GetBlobClient(name);
+        if (!await blob.ExistsAsync(cancellationToken)) return default;
+        return JsonSerializer.Deserialize<T>((await blob.DownloadContentAsync(cancellationToken)).Value.Content.ToString(), SeasonJson);
     }
 
     /// <summary>

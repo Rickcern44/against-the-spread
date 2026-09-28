@@ -1,0 +1,663 @@
+{
+  "$schema": "./README.md",
+  "fixture": "teams-2026",
+  "description": "All 32 NFL teams with 2026 Swan League point values derived from 2025 division finish, tier colors read from the workbook's Points-per-Win cells, and 2026 bye weeks derived from the real schedule.",
+  "source": {
+    "pointValuesAndDivisionFinish": "docs/2026-27 NFL Draft Sheet.xlsx :: DraftCentral!B2:K6",
+    "tierColorHex": "docs/2026-27 NFL Draft Sheet.xlsx :: DraftCentral!K3:K6 cell fills",
+    "byeWeeks": "ESPN site API scoreboard, 2026 regular season weeks 1-18, recorded 2026-09-28",
+    "teamIdentityAndColors": "ESPN site API scoreboard (espnTeamId, displayName, primaryColor, alternateColor)"
+  },
+  "season": 2026,
+  "teams": [
+    {
+      "abbreviation": "ARI",
+      "espnTeamId": "22",
+      "displayName": "Arizona Cardinals",
+      "location": "Arizona",
+      "nickname": "Cardinals",
+      "primaryColor": "#a40227",
+      "alternateColor": "#ffffff",
+      "conference": "NFC",
+      "division": "NFC West",
+      "finish2025": "4th",
+      "pointValue": 4,
+      "tier": "Green",
+      "tierColorHex": "#00FF00",
+      "byeWeek2026": 14,
+      "workbookName": "Arizona Cardinals",
+      "workbookAliases": [
+        "Arizona Cardinals"
+      ]
+    },
+    {
+      "abbreviation": "ATL",
+      "espnTeamId": "1",
+      "displayName": "Atlanta Falcons",
+      "location": "Atlanta",
+      "nickname": "Falcons",
+      "primaryColor": "#a71930",
+      "alternateColor": "#000000",
+      "conference": "NFC",
+      "division": "NFC South",
+      "finish2025": "3rd",
+      "pointValue": 3,
+      "tier": "Blue",
+      "tierColorHex": "#00FFFF",
+      "byeWeek2026": 11,
+      "workbookName": "Atlanta Falcons",
+      "workbookAliases": [
+        "Atlanta Falcons"
+      ]
+    },
+    {
+      "abbreviation": "BAL",
+      "espnTeamId": "33",
+      "displayName": "Baltimore Ravens",
+      "location": "Baltimore",
+      "nickname": "Ravens",
+      "primaryColor": "#29126f",
+      "alternateColor": "#000000",
+      "conference": "AFC",
+      "division": "AFC North",
+      "finish2025": "2nd",
+      "pointValue": 2,
+      "tier": "Yellow",
+      "tierColorHex": "#FFFF00",
+      "byeWeek2026": 13,
+      "workbookName": "Baltimore Ravens",
+      "workbookAliases": [
+        "Baltimore Ravens"
+      ]
+    },
+    {
+      "abbreviation": "BUF",
+      "espnTeamId": "2",
+      "displayName": "Buffalo Bills",
+      "location": "Buffalo",
+      "nickname": "Bills",
+      "primaryColor": "#00338d",
+      "alternateColor": "#d50a0a",
+      "conference": "AFC",
+      "division": "AFC East",
+      "finish2025": "2nd",
+      "pointValue": 2,
+      "tier": "Yellow",
+      "tierColorHex": "#FFFF00",
+      "byeWeek2026": 7,
+      "workbookName": "Buffalo Bills",
+      "workbookAliases": [
+        "Buffalo Bills"
+      ]
+    },
+    {
+      "abbreviation": "CAR",
+      "espnTeamId": "29",
+      "displayName": "Carolina Panthers",
+      "location": "Carolina",
+      "nickname": "Panthers",
+      "primaryColor": "#0085ca",
+      "alternateColor": "#000000",
+      "conference": "NFC",
+      "division": "NFC South",
+      "finish2025": "1st",
+      "pointValue": 1,
+      "tier": "Red",
+      "tierColorHex": "#FF0000",
+      "byeWeek2026": 5,
+      "workbookName": "Carolina Bakeshow",
+      "workbookAliases": [
+        "Carolina Bakeshow",
+        "Carolina Panthers"
+      ]
+    },
+    {
+      "abbreviation": "CHI",
+      "espnTeamId": "3",
+      "displayName": "Chicago Bears",
+      "location": "Chicago",
+      "nickname": "Bears",
+      "primaryColor": "#0b1c3a",
+      "alternateColor": "#e64100",
+      "conference": "NFC",
+      "division": "NFC North",
+      "finish2025": "1st",
+      "pointValue": 1,
+      "tier": "Red",
+      "tierColorHex": "#FF0000",
+      "byeWeek2026": 10,
+      "workbookName": "Chicago Bears",
+      "workbookAliases": [
+        "Chicago Bears"
+      ]
+    },
+    {
+      "abbreviation": "CIN",
+      "espnTeamId": "4",
+      "displayName": "Cincinnati Bengals",
+      "location": "Cincinnati",
+      "nickname": "Bengals",
+      "primaryColor": "#fb4f14",
+      "alternateColor": "#000000",
+      "conference": "AFC",
+      "division": "AFC North",
+      "finish2025": "3rd",
+      "pointValue": 3,
+      "tier": "Blue",
+      "tierColorHex": "#00FFFF",
+      "byeWeek2026": 6,
+      "workbookName": "Cincinatti Bengals",
+      "workbookAliases": [
+        "Cincinatti Bengals",
+        "Cincinnati Bengals"
+      ]
+    },
+    {
+      "abbreviation": "CLE",
+      "espnTeamId": "5",
+      "displayName": "Cleveland Browns",
+      "location": "Cleveland",
+      "nickname": "Browns",
+      "primaryColor": "#472a08",
+      "alternateColor": "#ff3c00",
+      "conference": "AFC",
+      "division": "AFC North",
+      "finish2025": "4th",
+      "pointValue": 4,
+      "tier": "Green",
+      "tierColorHex": "#00FF00",
+      "byeWeek2026": 11,
+      "workbookName": "Cleveland Browns",
+      "workbookAliases": [
+        "Cleveland Browns"
+      ]
+    },
+    {
+      "abbreviation": "DAL",
+      "espnTeamId": "6",
+      "displayName": "Dallas Cowboys",
+      "location": "Dallas",
+      "nickname": "Cowboys",
+      "primaryColor": "#002a5c",
+      "alternateColor": "#b0b7bc",
+      "conference": "NFC",
+      "division": "NFC East",
+      "finish2025": "2nd",
+      "pointValue": 2,
+      "tier": "Yellow",
+      "tierColorHex": "#FFFF00",
+      "byeWeek2026": 14,
+      "workbookName": "Dallas Cowboys",
+      "workbookAliases": [
+        "Dallas Cowboys"
+      ]
+    },
+    {
+      "abbreviation": "DEN",
+      "espnTeamId": "7",
+      "displayName": "Denver Broncos",
+      "location": "Denver",
+      "nickname": "Broncos",
+      "primaryColor": "#0a2343",
+      "alternateColor": "#fc4c02",
+      "conference": "AFC",
+      "division": "AFC West",
+      "finish2025": "1st",
+      "pointValue": 1,
+      "tier": "Red",
+      "tierColorHex": "#FF0000",
+      "byeWeek2026": 10,
+      "workbookName": "Denver Broncos",
+      "workbookAliases": [
+        "Denver Broncos"
+      ]
+    },
+    {
+      "abbreviation": "DET",
+      "espnTeamId": "8",
+      "displayName": "Detroit Lions",
+      "location": "Detroit",
+      "nickname": "Lions",
+      "primaryColor": "#0076b6",
+      "alternateColor": "#bbbbbb",
+      "conference": "NFC",
+      "division": "NFC North",
+      "finish2025": "4th",
+      "pointValue": 4,
+      "tier": "Green",
+      "tierColorHex": "#00FF00",
+      "byeWeek2026": 6,
+      "workbookName": "Detroit Lions",
+      "workbookAliases": [
+        "Detriot Lions",
+        "Detroit Lions"
+      ]
+    },
+    {
+      "abbreviation": "GB",
+      "espnTeamId": "9",
+      "displayName": "Green Bay Packers",
+      "location": "Green Bay",
+      "nickname": "Packers",
+      "primaryColor": "#204e32",
+      "alternateColor": "#ffb612",
+      "conference": "NFC",
+      "division": "NFC North",
+      "finish2025": "2nd",
+      "pointValue": 2,
+      "tier": "Yellow",
+      "tierColorHex": "#FFFF00",
+      "byeWeek2026": 11,
+      "workbookName": "Green Bay Packers",
+      "workbookAliases": [
+        "Green Bay Packers"
+      ]
+    },
+    {
+      "abbreviation": "HOU",
+      "espnTeamId": "34",
+      "displayName": "Houston Texans",
+      "location": "Houston",
+      "nickname": "Texans",
+      "primaryColor": "#021018",
+      "alternateColor": "#eb0028",
+      "conference": "AFC",
+      "division": "AFC South",
+      "finish2025": "2nd",
+      "pointValue": 2,
+      "tier": "Yellow",
+      "tierColorHex": "#FFFF00",
+      "byeWeek2026": 8,
+      "workbookName": "Houston Texans",
+      "workbookAliases": [
+        "Houston Texans"
+      ]
+    },
+    {
+      "abbreviation": "IND",
+      "espnTeamId": "11",
+      "displayName": "Indianapolis Colts",
+      "location": "Indianapolis",
+      "nickname": "Colts",
+      "primaryColor": "#003b75",
+      "alternateColor": "#ffffff",
+      "conference": "AFC",
+      "division": "AFC South",
+      "finish2025": "3rd",
+      "pointValue": 3,
+      "tier": "Blue",
+      "tierColorHex": "#00FFFF",
+      "byeWeek2026": 13,
+      "workbookName": "Indianapolis Colts",
+      "workbookAliases": [
+        "Indianapolis Colts"
+      ]
+    },
+    {
+      "abbreviation": "JAX",
+      "espnTeamId": "30",
+      "displayName": "Jacksonville Jaguars",
+      "location": "Jacksonville",
+      "nickname": "Jaguars",
+      "primaryColor": "#007487",
+      "alternateColor": "#d7a22a",
+      "conference": "AFC",
+      "division": "AFC South",
+      "finish2025": "1st",
+      "pointValue": 1,
+      "tier": "Red",
+      "tierColorHex": "#FF0000",
+      "byeWeek2026": 7,
+      "workbookName": "Jacksonville Jaguars",
+      "workbookAliases": [
+        "Jacksonville Jaguars"
+      ]
+    },
+    {
+      "abbreviation": "KC",
+      "espnTeamId": "12",
+      "displayName": "Kansas City Chiefs",
+      "location": "Kansas City",
+      "nickname": "Chiefs",
+      "primaryColor": "#e31837",
+      "alternateColor": "#ffb612",
+      "conference": "AFC",
+      "division": "AFC West",
+      "finish2025": "3rd",
+      "pointValue": 3,
+      "tier": "Blue",
+      "tierColorHex": "#00FFFF",
+      "byeWeek2026": 5,
+      "workbookName": "Kansas City Chiefs",
+      "workbookAliases": [
+        "Kansas City Chiefs"
+      ]
+    },
+    {
+      "abbreviation": "LAC",
+      "espnTeamId": "24",
+      "displayName": "Los Angeles Chargers",
+      "location": "Los Angeles",
+      "nickname": "Chargers",
+      "primaryColor": "#0080c6",
+      "alternateColor": "#ffc20e",
+      "conference": "AFC",
+      "division": "AFC West",
+      "finish2025": "2nd",
+      "pointValue": 2,
+      "tier": "Yellow",
+      "tierColorHex": "#FFFF00",
+      "byeWeek2026": 7,
+      "workbookName": "LA Chargers",
+      "workbookAliases": [
+        "LA Chargers",
+        "Los Angeles Chargers"
+      ]
+    },
+    {
+      "abbreviation": "LAR",
+      "espnTeamId": "14",
+      "displayName": "Los Angeles Rams",
+      "location": "Los Angeles",
+      "nickname": "Rams",
+      "primaryColor": "#003594",
+      "alternateColor": "#ffd100",
+      "conference": "NFC",
+      "division": "NFC West",
+      "finish2025": "2nd",
+      "pointValue": 2,
+      "tier": "Yellow",
+      "tierColorHex": "#FFFF00",
+      "byeWeek2026": 11,
+      "workbookName": "LA Rams",
+      "workbookAliases": [
+        "LA Rams",
+        "Las Angeles Rams",
+        "Los Angeles Rams"
+      ]
+    },
+    {
+      "abbreviation": "LV",
+      "espnTeamId": "13",
+      "displayName": "Las Vegas Raiders",
+      "location": "Las Vegas",
+      "nickname": "Raiders",
+      "primaryColor": "#000000",
+      "alternateColor": "#a5acaf",
+      "conference": "AFC",
+      "division": "AFC West",
+      "finish2025": "4th",
+      "pointValue": 4,
+      "tier": "Green",
+      "tierColorHex": "#00FF00",
+      "byeWeek2026": 13,
+      "workbookName": "Las Vegas Raiders",
+      "workbookAliases": [
+        "Las Vegas Raiders"
+      ]
+    },
+    {
+      "abbreviation": "MIA",
+      "espnTeamId": "15",
+      "displayName": "Miami Dolphins",
+      "location": "Miami",
+      "nickname": "Dolphins",
+      "primaryColor": "#008e97",
+      "alternateColor": "#fc4c02",
+      "conference": "AFC",
+      "division": "AFC East",
+      "finish2025": "3rd",
+      "pointValue": 3,
+      "tier": "Blue",
+      "tierColorHex": "#00FFFF",
+      "byeWeek2026": 6,
+      "workbookName": "Miami Dolphins",
+      "workbookAliases": [
+        "Miami Dolphins"
+      ]
+    },
+    {
+      "abbreviation": "MIN",
+      "espnTeamId": "16",
+      "displayName": "Minnesota Vikings",
+      "location": "Minnesota",
+      "nickname": "Vikings",
+      "primaryColor": "#4f2683",
+      "alternateColor": "#ffc62f",
+      "conference": "NFC",
+      "division": "NFC North",
+      "finish2025": "3rd",
+      "pointValue": 3,
+      "tier": "Blue",
+      "tierColorHex": "#00FFFF",
+      "byeWeek2026": 6,
+      "workbookName": "Minnesota Vikings",
+      "workbookAliases": [
+        "Minnesota Vikings"
+      ]
+    },
+    {
+      "abbreviation": "NE",
+      "espnTeamId": "17",
+      "displayName": "New England Patriots",
+      "location": "New England",
+      "nickname": "Patriots",
+      "primaryColor": "#002a5c",
+      "alternateColor": "#c60c30",
+      "conference": "AFC",
+      "division": "AFC East",
+      "finish2025": "1st",
+      "pointValue": 1,
+      "tier": "Red",
+      "tierColorHex": "#FF0000",
+      "byeWeek2026": 11,
+      "workbookName": "New England Cheaters",
+      "workbookAliases": [
+        "New England Cheaters",
+        "New England Patriots"
+      ]
+    },
+    {
+      "abbreviation": "NO",
+      "espnTeamId": "18",
+      "displayName": "New Orleans Saints",
+      "location": "New Orleans",
+      "nickname": "Saints",
+      "primaryColor": "#d3bc8d",
+      "alternateColor": "#000000",
+      "conference": "NFC",
+      "division": "NFC South",
+      "finish2025": "4th",
+      "pointValue": 4,
+      "tier": "Green",
+      "tierColorHex": "#00FF00",
+      "byeWeek2026": 8,
+      "workbookName": "New Orleans Saints",
+      "workbookAliases": [
+        "New Orleans Saints"
+      ]
+    },
+    {
+      "abbreviation": "NYG",
+      "espnTeamId": "19",
+      "displayName": "New York Giants",
+      "location": "New York",
+      "nickname": "Giants",
+      "primaryColor": "#003c7f",
+      "alternateColor": "#c9243f",
+      "conference": "NFC",
+      "division": "NFC East",
+      "finish2025": "4th",
+      "pointValue": 4,
+      "tier": "Green",
+      "tierColorHex": "#00FF00",
+      "byeWeek2026": 8,
+      "workbookName": "New York Giants",
+      "workbookAliases": [
+        "New York Giants"
+      ]
+    },
+    {
+      "abbreviation": "NYJ",
+      "espnTeamId": "20",
+      "displayName": "New York Jets",
+      "location": "New York",
+      "nickname": "Jets",
+      "primaryColor": "#115740",
+      "alternateColor": "#ffffff",
+      "conference": "AFC",
+      "division": "AFC East",
+      "finish2025": "4th",
+      "pointValue": 4,
+      "tier": "Green",
+      "tierColorHex": "#00FF00",
+      "byeWeek2026": 13,
+      "workbookName": "New York Jets",
+      "workbookAliases": [
+        "New York Jets"
+      ]
+    },
+    {
+      "abbreviation": "PHI",
+      "espnTeamId": "21",
+      "displayName": "Philadelphia Eagles",
+      "location": "Philadelphia",
+      "nickname": "Eagles",
+      "primaryColor": "#06424d",
+      "alternateColor": "#000000",
+      "conference": "NFC",
+      "division": "NFC East",
+      "finish2025": "1st",
+      "pointValue": 1,
+      "tier": "Red",
+      "tierColorHex": "#FF0000",
+      "byeWeek2026": 10,
+      "workbookName": "Philadelphia Eagles",
+      "workbookAliases": [
+        "Philadelphia Eagles"
+      ]
+    },
+    {
+      "abbreviation": "PIT",
+      "espnTeamId": "23",
+      "displayName": "Pittsburgh Steelers",
+      "location": "Pittsburgh",
+      "nickname": "Steelers",
+      "primaryColor": "#000000",
+      "alternateColor": "#ffb612",
+      "conference": "AFC",
+      "division": "AFC North",
+      "finish2025": "1st",
+      "pointValue": 1,
+      "tier": "Red",
+      "tierColorHex": "#FF0000",
+      "byeWeek2026": 9,
+      "workbookName": "Pittsburgh Steelers",
+      "workbookAliases": [
+        "Pittsburgh Steelers"
+      ]
+    },
+    {
+      "abbreviation": "SEA",
+      "espnTeamId": "26",
+      "displayName": "Seattle Seahawks",
+      "location": "Seattle",
+      "nickname": "Seahawks",
+      "primaryColor": "#002a5c",
+      "alternateColor": "#69be28",
+      "conference": "NFC",
+      "division": "NFC West",
+      "finish2025": "1st",
+      "pointValue": 1,
+      "tier": "Red",
+      "tierColorHex": "#FF0000",
+      "byeWeek2026": 11,
+      "workbookName": "Seattle Seahawks",
+      "workbookAliases": [
+        "Seattle Seahawks"
+      ]
+    },
+    {
+      "abbreviation": "SF",
+      "espnTeamId": "25",
+      "displayName": "San Francisco 49ers",
+      "location": "San Francisco",
+      "nickname": "49ers",
+      "primaryColor": "#aa0000",
+      "alternateColor": "#b3995d",
+      "conference": "NFC",
+      "division": "NFC West",
+      "finish2025": "3rd",
+      "pointValue": 3,
+      "tier": "Blue",
+      "tierColorHex": "#00FFFF",
+      "byeWeek2026": 8,
+      "workbookName": "San Francisco 49ers",
+      "workbookAliases": [
+        "San Francisco 49ers"
+      ]
+    },
+    {
+      "abbreviation": "TB",
+      "espnTeamId": "27",
+      "displayName": "Tampa Bay Buccaneers",
+      "location": "Tampa Bay",
+      "nickname": "Buccaneers",
+      "primaryColor": "#bd1c36",
+      "alternateColor": "#3e3a35",
+      "conference": "NFC",
+      "division": "NFC South",
+      "finish2025": "2nd",
+      "pointValue": 2,
+      "tier": "Yellow",
+      "tierColorHex": "#FFFF00",
+      "byeWeek2026": 10,
+      "workbookName": "Tampa Brady",
+      "workbookAliases": [
+        "Tampa Bay Buccaneers",
+        "Tampa Brady"
+      ]
+    },
+    {
+      "abbreviation": "TEN",
+      "espnTeamId": "10",
+      "displayName": "Tennessee Titans",
+      "location": "Tennessee",
+      "nickname": "Titans",
+      "primaryColor": "#4495d2",
+      "alternateColor": "#001532",
+      "conference": "AFC",
+      "division": "AFC South",
+      "finish2025": "4th",
+      "pointValue": 4,
+      "tier": "Green",
+      "tierColorHex": "#00FF00",
+      "byeWeek2026": 9,
+      "workbookName": "Tennessee Titans",
+      "workbookAliases": [
+        "Tennessee Titans"
+      ]
+    },
+    {
+      "abbreviation": "WSH",
+      "espnTeamId": "28",
+      "displayName": "Washington Commanders",
+      "location": "Washington",
+      "nickname": "Commanders",
+      "primaryColor": "#5a1414",
+      "alternateColor": "#ffb612",
+      "conference": "NFC",
+      "division": "NFC East",
+      "finish2025": "3rd",
+      "pointValue": 3,
+      "tier": "Blue",
+      "tierColorHex": "#00FFFF",
+      "byeWeek2026": 7,
+      "workbookName": "Team from Washington",
+      "workbookAliases": [
+        "Team from Washington",
+        "Washington Commanders"
+      ]
+    }
+  ]
+}

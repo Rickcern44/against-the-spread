@@ -55,7 +55,7 @@ removed.
 
 Canonical docs: `.agents.md`, `.github/copilot-instructions.md`, root `CLAUDE.md`. Known
 contradictions at time of writing: three different deployment stories
-(`docs/QUICK-DEPLOY.md` manual `az`, `docs/DEPLOYMENT.md` Terraform-with-publish-profiles, and
+(`docs/deprecated/QUICK-DEPLOY.md` manual `az`, `docs/deprecated/DEPLOYMENT.md` Terraform-with-publish-profiles, and
 `infrastructure/README.md` describing a standalone Function App that Terraform never actually
 applies — the real deploy is the single `Azure/static-web-apps-deploy@v1` step in the SWA
 workflow), several near-duplicate devcontainer/Copilot setup docs, and `.agents.md`'s "MVP: No

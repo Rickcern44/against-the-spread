@@ -232,9 +232,9 @@ Reviewers should verify:
 Before contributing:
 1. [`.agents.md`](.agents.md) - Agent development guide
 2. [`README.md`](README.md) - Project overview
-3. [`docs/TESTING.md`](docs/TESTING.md) - Unit testing guide
+3. [`docs/deprecated/TESTING.md`](docs/deprecated/TESTING.md) - Unit testing guide
 4. [`tests/README.md`](tests/README.md) - **E2E testing guide (Playwright)**
-5. Game rules in [`docs/rules.md`](docs/rules.md)
+5. Game rules in [`docs/deprecated/rules.md`](docs/deprecated/rules.md)
 
 ## 🐛 Reporting Issues
 

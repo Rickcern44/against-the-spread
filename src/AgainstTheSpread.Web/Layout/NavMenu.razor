@@ -1,44 +1,10 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Against The Spread</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
-
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="picks">
-                <span class="bi bi-clipboard-check-fill" aria-hidden="true"></span> Make Picks
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="bowl-picks">
-                <span class="bi bi-trophy-fill" aria-hidden="true"></span> Bowl Picks
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="admin">
-                <span class="bi bi-upload" aria-hidden="true"></span> Admin Upload
-            </NavLink>
-        </div>
-    </nav>
-</div>
-
-@code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}
+<MudNavMenu Class="nav-rail">
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.SpaceDashboard">Dashboard</MudNavLink>
+    <MudNavLink Href="picks" Icon="@Icons.Material.Filled.Rule">Weekly picks</MudNavLink>
+    <MudNavLink Href="mystats" Icon="@Icons.Material.Filled.QueryStats">My stats</MudNavLink>
+    <MudNavGroup Title="Commissioner" Icon="@Icons.Material.Filled.AdminPanelSettings" Expanded="false">
+        <MudNavLink Href="admin" Icon="@Icons.Material.Filled.CloudSync">Weekly data</MudNavLink>
+    </MudNavGroup>
+    <MudDivider Class="my-3 nav-divider" />
+    <MudNavLink Href="settings" Icon="@Icons.Material.Filled.Tune">Settings</MudNavLink>
+</MudNavMenu>

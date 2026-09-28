@@ -1,477 +1,159 @@
 @page "/picks"
+@using AgainstTheSpread.Core.Contracts
+@using AgainstTheSpread.Core.Interfaces
 @using AgainstTheSpread.Core.Models
-@using AgainstTheSpread.Web.Services
-@using AgainstTheSpread.Web.Models
-@using AgainstTheSpread.Web.Helpers
-@using Microsoft.JSInterop
-@inject ApiService ApiService
-@inject ITeamLogoService TeamLogoService
-@inject ITeamColorService TeamColorService
-@inject HttpClient HttpClient
-@inject IJSRuntime JSRuntime
+@inject IAppApiClient Api
 
-<PageTitle>Make Your Picks - Against The Spread</PageTitle>
+<PageTitle>Weekly picks</PageTitle>
 
-<div class="container mt-4">
-    <h1 class="mb-4">🏈 Make Your Weekly Picks</h1>
+<div class="page-eyebrow">Game plan</div>
+<h1 class="page-heading">Weekly picks</h1>
+<p class="page-subtitle">Ranked recommendations are guidance. Log your actual three starters and one dog below.</p>
 
-    @if (isLoading)
-    {
-        <div class="text-center">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2">Loading games...</p>
-        </div>
-    }
-    else if (errorMessage != null)
-    {
-        <div class="alert alert-danger" role="alert">
-            <strong>Error:</strong> @errorMessage
-        </div>
-        <button class="btn btn-primary" @onclick="LoadAvailableWeeks">Retry</button>
-    }
-    else if (currentWeekLines == null)
-    {
-        <!-- Week Selection -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h3 class="card-title">Select Week and Enter Your Name</h3>
-
-                <div class="mb-3">
-                    <label for="userName" class="form-label">Your Name</label>
-                    <input type="text" class="form-control" id="userName" @bind="userName"
-                        placeholder="Enter your full name" />
-                </div>
-
-                <div class="mb-3">
-                    <label for="year" class="form-label">Season</label>
-                    <select class="form-select" id="year" @bind="selectedYear" @bind:after="LoadAvailableWeeks">
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="week" class="form-label">Week</label>
-                    <select class="form-select" id="week" @bind="selectedWeek" disabled="@(availableWeeks.Count == 0)">
-                        <option value="0">-- Select Week --</option>
-                        @foreach (var week in availableWeeks)
-                        {
-                            <option value="@week">Week @week</option>
-                        }
-                    </select>
-                </div>
-
-                <button class="btn btn-primary btn-lg" @onclick="LoadGames"
-                    disabled="@(string.IsNullOrWhiteSpace(userName) || selectedWeek == 0)">
-                    Continue to Picks
-                </button>
-            </div>
-        </div>
-    }
-    else
-    {
-        <!-- Game Selection -->
-        <div class="mb-3">
-            <button class="btn btn-secondary" @onclick="GoBack">
-                ← Back to Week Selection
-            </button>
-        </div>
-
-        <div class="alert alert-info" role="alert">
-            <strong>@userName</strong> - Week @selectedWeek, @selectedYear
-            <br />
-            <strong>Selected: @selectedPicks.Count / 6 picks</strong>
-            @if (selectedPicks.Count == 6)
-            {
-                <span class="text-success ms-2">✓ Ready to download!</span>
-            }
-        </div>
-
-        <div class="row">
-            @foreach (var game in currentWeekLines.Games)
-            {
-                var isFavoriteSelected = selectedPicks.Contains(game.Favorite);
-                var isUnderdogSelected = selectedPicks.Contains(game.Underdog);
-                var gameDate = game.GameDate.ToString("ddd M/d");
-                var favoriteColors = TeamColorService.GetTeamColors(game.Favorite);
-                var underdogColors = TeamColorService.GetTeamColors(game.Underdog);
-
-                <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <small class="text-muted">@gameDate</small>
-                            <div class="d-grid gap-2 mt-2">
-                                <button class="btn @GetButtonClass(isFavoriteSelected, favoriteColors)"
-                                    style="@GetButtonStyle(isFavoriteSelected, favoriteColors)"
-                                    @onclick="() => TogglePick(game.Favorite)"
-                                    disabled="@(!isFavoriteSelected && selectedPicks.Count >= 6)">
-                                    <TeamLogo TeamName="@game.Favorite"
-                                        Style="width: 20px; height: 20px; object-fit: contain; margin-right: 6px; vertical-align: middle;" />
-                                    @game.FavoriteDisplay
-                                    @if (isFavoriteSelected)
-                                    {
-                                        <span>✓</span>
-                                    }
-                                </button>
-
-                                <div class="text-center">
-                                    <small class="text-muted">@game.VsAt</small>
-                                </div>
-
-                                <button class="btn @GetButtonClass(isUnderdogSelected, underdogColors)"
-                                    style="@GetButtonStyle(isUnderdogSelected, underdogColors)"
-                                    @onclick="() => TogglePick(game.Underdog)"
-                                    disabled="@(!isUnderdogSelected && selectedPicks.Count >= 6)">
-                                    <TeamLogo TeamName="@game.Underdog"
-                                        Style="width: 20px; height: 20px; object-fit: contain; margin-right: 6px; vertical-align: middle;" />
-                                    @game.UnderdogDisplay
-                                    @if (isUnderdogSelected)
-                                    {
-                                        <span>✓</span>
-                                    }
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-
-        @if (selectedPicks.Count == 6)
+<MudPaper Class="surface-panel mb-5" Elevation="0">
+    <MudSelect T="int" Value="week" ValueChanged="OnWeekChanged" Label="Week" Variant="Variant.Outlined" Dense="true" Class="week-select">
+        @for (var item = 1; item <= 18; item++)
         {
-            <div class="fixed-bottom bg-white border-top p-3 shadow">
-                <div class="container">
-                    @if (generatedExcelBytes == null)
-                    {
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-success btn-lg" @onclick="GeneratePicks" disabled="@isDownloading">
-                                @if (isDownloading)
-                                {
-                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                    <span>Generating Excel...</span>
-                                }
-                                else
-                                {
-                                    <span>📥 Generate Your Picks</span>
-                                }
-                            </button>
-                            <button class="btn btn-outline-primary btn-lg" @onclick="PrintPicksSheet" disabled="@(isDownloading || isPrinting)">
-                                @if (isPrinting)
-                                {
-                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                    <span>Opening Print View...</span>
-                                }
-                                else
-                                {
-                                    <span>🖨️ Print My Picks</span>
-                                }
-                            </button>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-success mb-2" role="status">
-                            Your picks file is ready.
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-success btn-lg" @onclick="DownloadGeneratedPicks">
-                                📥 Download File
-                            </button>
-                            <small class="text-muted text-center">
-                                On iPhone, choose Save to Files from the share sheet.
-                            </small>
-                        </div>
-                    }
+            var w = item;
+            <MudSelectItem Value="@w">Week @w</MudSelectItem>
+        }
+    </MudSelect>
+</MudPaper>
+
+@if (loading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+}
+else if (problem is not null)
+{
+    <MudAlert Severity="Severity.Warning" Class="mb-4">
+        @problem <MudButton Variant="Variant.Text" Color="Color.Inherit" OnClick="LoadAsync" Class="ml-2">Retry</MudButton>
+    </MudAlert>
+}
+else if (games is not null && recommendation is not null)
+{
+    <h2 class="section-heading mb-3">This week's ranked recommendation</h2>
+    <div class="recommendation-grid mb-6">
+        @for (var index = 0; index < recommendation.Starters.Count; index++)
+        {
+            var starter = recommendation.Starters[index];
+            var dog = recommendation.Dogs.ElementAtOrDefault(index);
+            var team = Team(starter.TeamId);
+            <div class="recommendation-card">
+                <span class="recommendation-rank">#@starter.Rank</span>
+                <div class="recommendation-body">
+                    <div class="recommendation-team">
+                        @TeamName(starter.TeamId)
+                        <span class="tier-chip"><span class="tier-dot" style="background:@team.TierColorHex"></span>@team.PointValue pt</span>
+                    </div>
+                    <div class="recommendation-meta mono">@starter.WinProbability.ToString("P0") win · Dog: @(dog is null ? "—" : TeamName(dog.TeamId))</div>
+                </div>
+                <div class="recommendation-ev">
+                    <span class="ev-label">EV</span>
+                    <span class="ev-value mono">@starter.ExpectedValue.ToString("0.00")</span>
                 </div>
             </div>
         }
+    </div>
+
+    <MudPaper Class="surface-panel" Elevation="0">
+        <h2 class="section-heading mb-3">Your actual picks</h2>
+        <MudGrid>
+            @for (var index = 0; index < 3; index++)
+            {
+                var selectionIndex = index;
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="string" Value="@starters[selectionIndex]" ValueChanged="@(value => SetStarter(selectionIndex, value))"
+                               Label="@($"Starter {selectionIndex + 1}")" Variant="Variant.Outlined" Dense="true">
+                        @foreach (var team in games.Teams)
+                        {
+                            <MudSelectItem Value="@team.Id">@team.DisplayName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            }
+            <MudItem xs="12" sm="4">
+                <MudSelect T="string" @bind-Value="dogTeamId" Label="Dog" Variant="Variant.Outlined" Dense="true">
+                    @foreach (var game in games.Games)
+                    {
+                        <MudSelectItem Value="@game.UnderdogTeamId">@TeamName(game.UnderdogTeamId)</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="@saving" Class="mt-4">
+            @(saving ? "Saving…" : "Save picks")
+        </MudButton>
+        @if (saveMessage is not null)
+        {
+            <MudAlert Severity="Severity.Success" Class="mt-3">@saveMessage</MudAlert>
+        }
+    </MudPaper>
+
+    @if (score is not null)
+    {
+        <MudAlert Severity="Severity.Info" Class="mt-4">
+            <strong>Running score:</strong> @score.StarterPoints starter points + @score.DogPoints dog points.
+            <MudLink Href="mystats" Class="ml-1">View all stats</MudLink>
+        </MudAlert>
     }
-</div>
+}
 
 @code {
-    private string userName = "";
-    private int selectedYear = DateTime.Now.Year;
-    private int selectedWeek = 0;
-    private List<int> availableWeeks = new();
-    private WeeklyLines? currentWeekLines = null;
-    private List<string> selectedPicks = new();
-    private bool isLoading = true;
-    private bool isDownloading = false;
-    private bool isPrinting = false;
-    private string? errorMessage = null;
-    private byte[]? generatedExcelBytes = null;
-    private string? generatedFileName = null;
-    private long picksRevision;
+    private int week = 1;
+    private bool loading = true, saving;
+    private string? problem, saveMessage, dogTeamId;
+    private readonly string?[] starters = new string?[3];
+    private WeekGamesResponse? games;
+    private WeekRecommendationResponse? recommendation;
+    private WeeklyScore? score;
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task OnWeekChanged(int value) { week = value; return LoadAsync(); }
+
+    private async Task LoadAsync()
     {
-        // Initialize the team logo service and team color service
-        await TeamLogoService.InitializeAsync(HttpClient);
-        await TeamColorService.InitializeAsync(HttpClient);
-
-        await LoadAvailableWeeks();
-    }
-
-    private async Task LoadAvailableWeeks()
-    {
-        isLoading = true;
-        errorMessage = null;
-
-        try
+        loading = true; problem = null; saveMessage = null; games = null; recommendation = null; score = null;
+        var gameResult = await Api.GetWeekGamesAsync(week);
+        var recommendationResult = await Api.GetWeekRecommendationAsync(week);
+        if (!gameResult.Succeeded) problem = gameResult.Problem!.Message;
+        else if (!recommendationResult.Succeeded) problem = recommendationResult.Problem!.Message;
+        else
         {
-            availableWeeks = await ApiService.GetAvailableWeeksAsync(selectedYear);
-
-            if (availableWeeks.Count == 0)
+            games = gameResult.Data!;
+            recommendation = recommendationResult.Data!;
+            var picks = await Api.GetWeekPicksAsync(week);
+            if (picks.Data is not null)
             {
-                errorMessage = $"No weeks available for {selectedYear}. Please check back later or contact your administrator.";
+                var pick = picks.Data.Pick;
+                for (var index = 0; index < 3; index++) starters[index] = pick.StarterTeamIds.ElementAtOrDefault(index);
+                dogTeamId = pick.DogPicks.SingleOrDefault()?.TeamId;
             }
+            var standings = await Api.GetStandingsAsync();
+            score = standings.Data?.WeeklyHistory.SingleOrDefault(history => history.Week == week)?.Score;
         }
-        catch (Exception ex)
-        {
-            errorMessage = $"Failed to load available weeks: {ex.Message}";
-        }
-        finally
-        {
-            isLoading = false;
-        }
+        loading = false;
     }
 
-    private async Task LoadGames()
+    private void SetStarter(int index, string? value) => starters[index] = value;
+
+    private async Task SaveAsync()
     {
-        if (string.IsNullOrWhiteSpace(userName) || selectedWeek == 0)
+        if (games is null || starters.Any(string.IsNullOrWhiteSpace) || starters.Distinct(StringComparer.OrdinalIgnoreCase).Count() != 3 || string.IsNullOrWhiteSpace(dogTeamId))
+        {
+            problem = "Choose three distinct starters and one dog before saving.";
             return;
-
-        InvalidateGeneratedWorkbook();
-        isLoading = true;
-        errorMessage = null;
-
-        try
-        {
-            currentWeekLines = await ApiService.GetLinesAsync(selectedWeek, selectedYear);
-
-            if (currentWeekLines == null)
-            {
-                errorMessage = $"Could not load games for Week {selectedWeek}. Please try again.";
-                currentWeekLines = null;
-            }
-            else
-            {
-                selectedPicks.Clear();
-            }
         }
-        catch (Exception ex)
-        {
-            errorMessage = $"Failed to load games: {ex.Message}";
-            currentWeekLines = null;
-        }
-        finally
-        {
-            isLoading = false;
-        }
+        var dogGame = games.Games.SingleOrDefault(game => game.UnderdogTeamId == dogTeamId);
+        if (dogGame is null) { problem = "The dog must be an underdog in this week's games."; return; }
+        saving = true; problem = null;
+        var response = await Api.SaveWeekPicksAsync(week, new(new WeeklyPick(week, starters!, new[] { new DogPick(dogGame.Id, dogTeamId) })));
+        saving = false;
+        if (!response.Succeeded) problem = response.Problem!.Message;
+        else saveMessage = "Your picks are saved.";
     }
 
-    private void GoBack()
-    {
-        currentWeekLines = null;
-        selectedPicks.Clear();
-        InvalidateGeneratedWorkbook();
-    }
-
-    private void TogglePick(string team)
-    {
-        PickSelectionHelper.TogglePick(team, selectedPicks, currentWeekLines?.Games);
-        InvalidateGeneratedWorkbook();
-    }
-
-    private void InvalidateGeneratedWorkbook()
-    {
-        picksRevision++;
-        generatedExcelBytes = null;
-        generatedFileName = null;
-    }
-
-    private async Task GeneratePicks()
-    {
-        if (selectedPicks.Count != 6)
-            return;
-
-        var submittedRevision = picksRevision;
-        isDownloading = true;
-
-        try
-        {
-            var userPicks = new UserPicks
-            {
-                Name = userName,
-                Week = selectedWeek,
-                Year = selectedYear,
-                Picks = selectedPicks.ToList(),
-                SubmittedAt = DateTime.UtcNow
-            };
-
-            var excelBytes = await ApiService.SubmitPicksAsync(userPicks);
-
-            if (excelBytes != null && submittedRevision == picksRevision)
-            {
-                generatedExcelBytes = excelBytes;
-                generatedFileName = $"{SanitizeFileName(userName)}_Week_{selectedWeek}_Picks.xlsx";
-            }
-            else if (excelBytes == null && submittedRevision == picksRevision)
-            {
-                errorMessage = "Failed to generate picks file. Please try again.";
-            }
-        }
-        catch (Exception ex)
-        {
-            if (submittedRevision == picksRevision)
-            {
-                errorMessage = $"Error downloading picks: {ex.Message}";
-            }
-        }
-        finally
-        {
-            isDownloading = false;
-        }
-    }
-
-    private async Task DownloadGeneratedPicks()
-    {
-        if (generatedExcelBytes != null && generatedFileName != null)
-        {
-            await JSRuntime.InvokeVoidAsync(
-                "downloadFile",
-                generatedFileName,
-                Convert.ToBase64String(generatedExcelBytes));
-        }
-    }
-
-    private string SanitizeFileName(string input)
-    {
-        var invalidChars = Path.GetInvalidFileNameChars();
-        // Replace invalid characters with underscore, but keep spaces
-        var sanitized = string.Concat(input.Select(c => invalidChars.Contains(c) ? '_' : c));
-        return sanitized.TrimEnd();
-    }
-
-    private string GetButtonClass(bool isSelected, TeamColors? teamColors)
-    {
-        // If selected, use bright green with custom styling
-        if (isSelected)
-        {
-            return "btn-selected";
-        }
-
-        // If no team colors, use default Bootstrap styles
-        if (teamColors == null)
-        {
-            return "btn-outline-primary";
-        }
-
-        // Use team-colored class for unselected buttons with team colors
-        return "team-color-btn";
-    }
-
-    private string GetButtonStyle(bool isSelected, TeamColors? teamColors)
-    {
-        // If selected, use bright green with dark border
-        if (isSelected)
-        {
-            return "background-color: #00ff00; border: 3px solid #000000; color: #000000; font-weight: bold;";
-        }
-
-        // If no colors, don't add custom styles
-        if (teamColors == null)
-        {
-            return string.Empty;
-        }
-
-        // Validate that colors are not empty
-        if (string.IsNullOrWhiteSpace(teamColors.Primary) || string.IsNullOrWhiteSpace(teamColors.Secondary))
-        {
-            return string.Empty;
-        }
-
-        // Apply team colors with good contrast for text
-        var brightness = GetBrightness(teamColors.Primary);
-        var textColor = brightness > 128 ? "#000000" : "#FFFFFF";
-
-        return $"background-color: {teamColors.Primary}; border-color: {teamColors.Secondary}; color: {textColor};";
-    }
-
-    private int GetBrightness(string hexColor)
-    {
-        try
-        {
-            // Remove # if present
-            hexColor = hexColor.TrimStart('#');
-
-            // Validate length
-            if (hexColor.Length != 6)
-            {
-                return 128; // Return middle brightness as default
-            }
-
-            // Parse RGB values
-            var r = Convert.ToInt32(hexColor.Substring(0, 2), 16);
-            var g = Convert.ToInt32(hexColor.Substring(2, 2), 16);
-            var b = Convert.ToInt32(hexColor.Substring(4, 2), 16);
-
-            // Calculate perceived brightness using standard formula
-            return (int)((r * 299 + g * 587 + b * 114) / 1000);
-        }
-        catch
-        {
-            // Return middle brightness as fallback
-            return 128;
-        }
-    }
-
-    private async Task PrintPicksSheet()
-    {
-        if (selectedPicks.Count != 6 || currentWeekLines == null || isPrinting)
-            return;
-
-        isPrinting = true;
-        try
-        {
-            var picksHtml = GenerateLargeTextPicksHtml();
-            await JSRuntime.InvokeVoidAsync("openPrintableWindow", picksHtml);
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Failed to open print window: {ex.Message}. Please check if popups are blocked.";
-        }
-        finally
-        {
-            isPrinting = false;
-        }
-    }
-
-    private string GenerateLargeTextPicksHtml()
-    {
-        var picksLines = new List<string>();
-
-        foreach (var teamName in selectedPicks)
-        {
-            // Find the game where this team is either favorite or underdog
-            var game = currentWeekLines!.Games.FirstOrDefault(g => 
-                g.Favorite.Equals(teamName, StringComparison.OrdinalIgnoreCase) || 
-                g.Underdog.Equals(teamName, StringComparison.OrdinalIgnoreCase));
-
-            if (game != null)
-            {
-                var spreadDisplay = SpreadFormatter.FormatSpreadForTeam(game, teamName);
-                picksLines.Add($"{spreadDisplay} {teamName}");
-            }
-            else
-            {
-                picksLines.Add(teamName);
-            }
-        }
-
-        return PrintPageGenerator.GeneratePicksHtml(picksLines, selectedWeek);
-    }
+    private string TeamName(string id) => Team(id).DisplayName;
+    private Team Team(string id) => games?.Teams.SingleOrDefault(team => team.Id == id) ?? new Team(id, id, 4, 1);
 }

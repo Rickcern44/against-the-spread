@@ -251,7 +251,7 @@ fix(web): correct game selection validation
 
 ### Security Considerations
 
-**Admin endpoints require Google authentication** (see `docs/AUTHENTICATION_FIX.md`); weekly/bowl read and picks-generation APIs stay anonymous by design. Beyond that:
+**Admin endpoints require Google authentication** (see `docs/deprecated/AUTHENTICATION_FIX.md`); weekly/bowl read and picks-generation APIs stay anonymous by design. Beyond that:
 - Validate all inputs
 - Set appropriate CORS policies
 - Enforce file size limits
@@ -269,7 +269,7 @@ fix(web): correct game selection validation
 **Key files to maintain:**
 - `README.md` - Project overview and setup
 - `CONTRIBUTING.md` - Development workflow
-- `docs/TESTING.md` - Testing strategy
+- `docs/deprecated/TESTING.md` - Testing strategy
 - `.agents.md` - Agent development guide
 
 ### Performance
@@ -331,7 +331,7 @@ fix(web): correct game selection validation
 
 **Documentation:**
 - `.agents.md` - Comprehensive agent guide
-- `docs/TESTING.md` - Complete testing guide (unit tests)
+- `docs/deprecated/TESTING.md` - Complete testing guide (unit tests)
 - `CONTRIBUTING.md` - Contribution guidelines
 
 **E2E Testing (Playwright):**

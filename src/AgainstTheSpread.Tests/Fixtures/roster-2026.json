@@ -1,0 +1,258 @@
+{
+  "fixture": "roster-2026",
+  "description": "The coach's own 9-team 2026 Swan League roster, with point values, tier colors, bye weeks and intra-roster collision weeks.",
+  "source": {
+    "roster": "docs/2026-27 NFL Draft Sheet.xlsx :: DraftCentral!D20:D29 (coach 'Rick') \u2014 cross-checked against Scoreboard!C134:C142",
+    "pointValues": "teams-2026.json (2025 division finish)",
+    "byeWeeksAndCollisions": "ESPN site API scoreboard, 2026 regular season weeks 1-18, recorded 2026-09-28"
+  },
+  "season": 2026,
+  "coach": "Rick",
+  "startersPerWeek": 3,
+  "teams": [
+    {
+      "abbreviation": "DET",
+      "displayName": "Detroit Lions",
+      "pointValue": 4,
+      "tier": "Green",
+      "tierColorHex": "#00FF00",
+      "byeWeek2026": 6
+    },
+    {
+      "abbreviation": "CIN",
+      "displayName": "Cincinnati Bengals",
+      "pointValue": 3,
+      "tier": "Blue",
+      "tierColorHex": "#00FFFF",
+      "byeWeek2026": 6
+    },
+    {
+      "abbreviation": "KC",
+      "displayName": "Kansas City Chiefs",
+      "pointValue": 3,
+      "tier": "Blue",
+      "tierColorHex": "#00FFFF",
+      "byeWeek2026": 5
+    },
+    {
+      "abbreviation": "SF",
+      "displayName": "San Francisco 49ers",
+      "pointValue": 3,
+      "tier": "Blue",
+      "tierColorHex": "#00FFFF",
+      "byeWeek2026": 8
+    },
+    {
+      "abbreviation": "NYG",
+      "displayName": "New York Giants",
+      "pointValue": 4,
+      "tier": "Green",
+      "tierColorHex": "#00FF00",
+      "byeWeek2026": 8
+    },
+    {
+      "abbreviation": "NO",
+      "displayName": "New Orleans Saints",
+      "pointValue": 4,
+      "tier": "Green",
+      "tierColorHex": "#00FF00",
+      "byeWeek2026": 8
+    },
+    {
+      "abbreviation": "MIN",
+      "displayName": "Minnesota Vikings",
+      "pointValue": 3,
+      "tier": "Blue",
+      "tierColorHex": "#00FFFF",
+      "byeWeek2026": 6
+    },
+    {
+      "abbreviation": "BAL",
+      "displayName": "Baltimore Ravens",
+      "pointValue": 2,
+      "tier": "Yellow",
+      "tierColorHex": "#FFFF00",
+      "byeWeek2026": 13
+    },
+    {
+      "abbreviation": "LAR",
+      "displayName": "Los Angeles Rams",
+      "pointValue": 2,
+      "tier": "Yellow",
+      "tierColorHex": "#FFFF00",
+      "byeWeek2026": 11
+    }
+  ],
+  "pointValueDistribution": {
+    "2": 2,
+    "3": 4,
+    "4": 3
+  },
+  "byeWeeks": {
+    "5": [
+      "KC"
+    ],
+    "6": [
+      "DET",
+      "CIN",
+      "MIN"
+    ],
+    "8": [
+      "SF",
+      "NYG",
+      "NO"
+    ],
+    "11": [
+      "LAR"
+    ],
+    "13": [
+      "BAL"
+    ]
+  },
+  "intraRosterCollisions": [
+    {
+      "week": 1,
+      "teams": [
+        "DET",
+        "NO"
+      ],
+      "eventId": "401872923"
+    },
+    {
+      "week": 1,
+      "teams": [
+        "LAR",
+        "SF"
+      ],
+      "eventId": "401872657"
+    },
+    {
+      "week": 2,
+      "teams": [
+        "LAR",
+        "NYG"
+      ],
+      "eventId": "401872947"
+    },
+    {
+      "week": 2,
+      "teams": [
+        "BAL",
+        "NO"
+      ],
+      "eventId": "401872938"
+    },
+    {
+      "week": 5,
+      "teams": [
+        "MIN",
+        "NO"
+      ],
+      "eventId": "401872987"
+    },
+    {
+      "week": 6,
+      "teams": [
+        "NO",
+        "NYG"
+      ],
+      "eventId": "401873000"
+    },
+    {
+      "week": 7,
+      "teams": [
+        "BAL",
+        "CIN"
+      ],
+      "eventId": "401873012"
+    },
+    {
+      "week": 8,
+      "teams": [
+        "DET",
+        "MIN"
+      ],
+      "eventId": "401873030"
+    },
+    {
+      "week": 11,
+      "teams": [
+        "MIN",
+        "SF"
+      ],
+      "eventId": "401873077"
+    },
+    {
+      "week": 12,
+      "teams": [
+        "CIN",
+        "NO"
+      ],
+      "eventId": "401873087"
+    },
+    {
+      "week": 13,
+      "teams": [
+        "KC",
+        "LAR"
+      ],
+      "eventId": "401873096"
+    },
+    {
+      "week": 13,
+      "teams": [
+        "NYG",
+        "SF"
+      ],
+      "eventId": "401873095"
+    },
+    {
+      "week": 14,
+      "teams": [
+        "CIN",
+        "KC"
+      ],
+      "eventId": "401873119"
+    },
+    {
+      "week": 14,
+      "teams": [
+        "LAR",
+        "SF"
+      ],
+      "eventId": "401873120"
+    },
+    {
+      "week": 15,
+      "teams": [
+        "DET",
+        "MIN"
+      ],
+      "eventId": "401873138"
+    },
+    {
+      "week": 16,
+      "teams": [
+        "DET",
+        "NYG"
+      ],
+      "eventId": "401873155"
+    },
+    {
+      "week": 16,
+      "teams": [
+        "KC",
+        "SF"
+      ],
+      "eventId": "401873153"
+    },
+    {
+      "week": 17,
+      "teams": [
+        "BAL",
+        "CIN"
+      ],
+      "eventId": "401873156"
+    }
+  ]
+}

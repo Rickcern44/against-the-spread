@@ -24,6 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Recorded test data (see Fixtures/README.md) — tests read these from the output directory. -->
+    <Content Include="Fixtures\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AgainstTheSpread.Core\AgainstTheSpread.Core.csproj" />
     <ProjectReference Include="..\AgainstTheSpread.Functions\AgainstTheSpread.Functions.csproj" />
     <ProjectReference Include="..\AgainstTheSpread.Web\AgainstTheSpread.Web.csproj" />

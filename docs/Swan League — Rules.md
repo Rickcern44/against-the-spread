@@ -1,5 +1,10 @@
 # Swan League — Rules
 
+> **Superseded as a scoring reference.** `docs/swan-league-spec.md` is authoritative; read it
+> instead. This document is kept for narrative background only. Two things in it are known
+> wrong — the Ravens' bye week and the intra-roster collision list (see the spec, §10) — and its
+> "Open / unresolved rules" section is fully closed (spec §11).
+
 Sep 26, 2026
 
 ## Overview

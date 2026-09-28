@@ -1,5 +1,10 @@
 # Swan League — Weekly Starter Method
 
+> **Superseded as a specification.** `docs/swan-league-spec.md` §7 is authoritative. Win
+> probability now comes from the **spread**, not the moneyline, and the separate de-vig step is
+> gone. The Week 3 worked example below (49ers over Saints, 48.9% vs 38.6%) does not reproduce
+> from the spread and has been replaced — see spec §7.5.
+
 Sep 26, 2026
 
 ## The formula

@@ -19,6 +19,7 @@ season). Nothing here is synthesised.
 | `expected/lines-2026-week3.json` | Phase 2 — expected normalized adapter output |
 | `expected/scoring-2026-workbook-cases.json` | Phase 1 — `IScoringService` golden cases |
 | `expected/recommendation-2026-week3.json` | Phase 3 — `IStarterRecommendationService` acceptance case |
+| `expected/dog-recommendation-2026-week3.json` | Phase 3 — `IDogRecommendationService` acceptance case |
 
 `expected/` holds derived values. The files above it hold recorded source data. If a `expected/`
 file and its source disagree, the source wins and the expected file needs regenerating.
@@ -57,9 +58,10 @@ The fixtures are static on purpose — nothing in CI refreshes them. To re-recor
 1. Re-run the endpoints above for the week you want; keep the response bodies verbatim.
 2. Regenerate `expected/lines-*.json` from the new odds payload (favourite side, underdog spread,
    `ceil(|spread|)` dog points).
-3. Regenerate `expected/recommendation-*.json` with the σ and `erf` approximation pinned in
-   `docs/swan-league-spec.md` §7. **Do not change σ to make a number look nicer** — σ is a spec
-   pin, and moving it is a spec revision.
+3. Regenerate `expected/recommendation-*.json` and `expected/dog-recommendation-*.json` with the
+   σ and `erf` approximation pinned in `docs/swan-league-spec.md` §7. **Do not change σ to make a
+   number look nicer** — σ is a spec pin, confirmed by the board on 2026-09-28, and moving it is a
+   spec revision.
 4. Leave the workbook-derived files alone unless the workbook itself changed. If it did, update
    the cell references too.
 
@@ -73,6 +75,9 @@ The fixtures are static on purpose — nothing in CI refreshes them. To re-recor
   adapters that assume the home side is the favourite.
 - Half-point spreads (`-3.5`, `-7.5`, `-8.5`, `-2.5`, `-1.5`, `-4.5`) and whole-number spreads
   (`-7`, `-10`, `-3`) both appear, so the `ceil` rule is exercised in both directions.
+- `expected/dog-recommendation-2026-week3.json` — the biggest spread on the board (`MIA +10`)
+  ranks **third**, and `+2.5` outranks `+3` on identical points. Both catch a dog ranker that
+  sorts by spread instead of by EV.
 - `expected/scoring-2026-workbook-cases.json` — `samt-week-1-perfect-but-not-going-perf` is a
   Perfect Week (+3, 3 starters) that is **not** a Going Perf (the dog lost). That distinction is
   the single easiest thing to get wrong in the scoring engine.

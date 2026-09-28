@@ -79,6 +79,9 @@ dogPoints(week)       = Σ over that week's dog picks: wonOutright ? ceil(|offic
 - The `Rules!C6` worked example ("Browns +6 in week one … beat the Steelers") is **illustrative
   only**. In the real 2026 week 1 the Browns lost at Jacksonville and the Steelers beat Atlanta.
   Do not use it as a fixture.
+- There is **no eligibility filter on the dog**: no minimum or maximum spread, no once-per-season
+  restriction, no roster requirement. The app must not impose one. Help with the choice is a
+  **ranking**, not a filter — see §7.5.
 
 ### 2.2 Double-dog weeks are data, not constants
 
@@ -226,8 +229,13 @@ digits.
 The standard deviation of NFL game margin around the closing spread sits in the 13.5–13.9 range
 in published work. 13.5 is the round number at the bottom of that range. The choice is a pin, not
 a claim of optimality — but it must not be changed casually, because every committed expected
-value in `Fixtures/expected/recommendation-2026-week3.json` moves with it. Changing σ is a spec
+value in `Fixtures/expected/recommendation-2026-week3.json` and
+`Fixtures/expected/dog-recommendation-2026-week3.json` moves with it. Changing σ is a spec
 revision plus a fixture regeneration, not a tuning knob.
+
+**σ = 13.5 was raised as the spec's one judgment call and confirmed by the board on 2026-09-28.**
+It is not a user setting and not a config knob. It affects suggestions only: nothing in §2
+scoring reads a probability. Locked.
 
 Sanity values: `Φ(0)=0.5`, `Φ(1)=0.841345`, `Φ(-1)=0.158655`.
 
@@ -265,7 +273,62 @@ win probabilities — and give the slot to the higher product.
 **Collisions:** when two rostered teams play each other, one is guaranteed to lose. Start the
 side the line favors; never bench both.
 
-### 7.5 The method doc's worked example does not reproduce — use this one instead
+### 7.5 The dog recommendation
+
+Decided by the board on 2026-09-28: the app gives a **ranked dog list**, not a spread threshold.
+
+```
+EV(dog) = P(dog wins outright) × ceil(dogSpread)
+```
+
+- `P(dog wins outright)` is §7.1 evaluated at the dog's margin, i.e. `Φ(−dogSpread / σ)`. Same
+  function, same σ, no second model.
+- `ceil(dogSpread)` is the §2.1 points rule, so the ranking pays exactly what the week pays.
+- **Scope is the whole slate** — every game's underdog, not just rostered teams (§2.1). A 16-game
+  week produces 16 rows.
+- Rank by EV descending. **Tiebreak:** equal EV → higher win probability → team abbreviation
+  ascending. Deterministic, because exact EV ties are common (three of them in week 3).
+- Show the top N *and* let the user see the full list. The list informs the pick; it never
+  constrains it.
+- On a double-dog week (§2.2) the list is unchanged — take the top `dogAllowance` rows. The picks
+  are independent, so there is no joint-probability tiebreak here, unlike the starter trio in
+  §7.4.
+
+**Why not a user-settable spread threshold.** Across the realistic range at σ = 13.5, EV peaks
+near +9.5 (2.41) and everything from +6.5 to +13.5 sits inside 2.20–2.41 — a 9-point-wide
+plateau varying under 10%. Any threshold set inside that band would cut a flat surface
+arbitrarily, discarding candidates statistically indistinguishable from the ones it keeps. The
+only real edges are "below +5.5 the points are too small" and "above +14 the dog rarely wins",
+and the EV ranking finds both without configuration.
+
+The ceiling rule also hides an edge a threshold cannot express: because points round **up**, the
+`.5` side of every rounding boundary pays the same as the whole number above it at a better win
+rate — `+6.5` pays 7 at 0.3151 where `+7.0` pays 7 at 0.3020; `+9.5` pays 10 at 0.2408 where
+`+10.0` pays 10 at 0.2294. A ranking surfaces that automatically.
+
+**Acceptance case** — `Fixtures/expected/dog-recommendation-2026-week3.json`, all 16 week-3 dogs:
+
+| Rank | Dog | Line | Spread | Pts | p(win) | EV |
+|---|---|---|---|---|---|---|
+| 1 | WSH | `SEA -8.5` | +8.5 | 9 | 0.2645 | **2.3805** |
+| 2 | ARI | `SF -7.5` | +7.5 | 8 | 0.2893 | 2.3144 |
+| 3 | MIA | `KC -10` | +10 | 10 | 0.2294 | 2.2940 |
+| 4 | LAC | `BUF -7` | +7 | 7 | 0.3020 | 2.1140 |
+| 5 | NYJ | `DET -7` | +7 | 7 | 0.3020 | 2.1140 |
+| 6 | ATL | `GB -4.5` | +4.5 | 5 | 0.3694 | 1.8470 |
+| 7–9 | CHI, LV, PIT | `-3.5` | +3.5 | 4 | 0.3977 | 1.5908 |
+| 10–11 | CLE, TEN | `-2.5` | +2.5 | 3 | 0.4265 | 1.2795 |
+| 12–13 | DAL, NE | `-3` | +3 | 3 | 0.4121 | 1.2363 |
+| 14–16 | IND, LAR, MIN | `-1.5` | +1.5 | 2 | 0.4558 | 0.9116 |
+
+**Recommended dog: WSH.** Three things in that table are worth asserting as behaviour, not just
+as numbers:
+
+- **MIA +10 is the biggest spread on the board and ranks third.** More points is not more EV.
+- **CLE/TEN +2.5 outrank DAL/NE +3** on identical points — the `.5` edge, in the fixture.
+- Ranks 1–5 span 2.11–2.38. A threshold anywhere in that band is noise.
+
+### 7.6 The method doc's worked example does not reproduce — use this one instead
 
 `docs/Swan League — Weekly Starter Method.md` claims that in week 3 the tiebreak "flipped the
 49ers over the Saints for the third starting slot — 48.9% vs 38.6% perfect-week odds." Those
@@ -408,6 +471,7 @@ The correct bye weeks and collisions are in the fixtures. Read them from there, 
 | What do the colour tiers mean in the regular-season tiebreaker? | Point values: red 1, yellow 2, blue 3, green 4. The tiebreaker walks them **green → blue → yellow → red**. | §1, §5.1 |
 | What compensation do #1 seeds get for the Wild Card bye? | **+10 flat** to any coach rostering the conference winner. | §6 |
 | Going Perf / 0fer by most occurrences, or first occurrence? | **Neither** — max/min point total over qualifying weeks. | §8 |
+| Can the user set a spread threshold for dog picks? | **No.** No threshold, no filter of any kind. The app ranks every dog on the slate by EV; the pick stays wide open. Board decision, 2026-09-28. | §2.1, §7.5 |
 
 ---
 
@@ -425,7 +489,8 @@ provenance and re-recording instructions.
 | `scores-espn-2026-week3.json` | recorded scores payload, week 3, 15 final + 1 scheduled |
 | `expected/lines-2026-week3.json` | expected normalized `ILinesProvider` output, incl. dog points |
 | `expected/scoring-2026-workbook-cases.json` | golden scoring cases taken from the workbook |
-| `expected/recommendation-2026-week3.json` | golden recommendation output from the §7 function |
+| `expected/recommendation-2026-week3.json` | golden starter recommendation from the §7.4 function |
+| `expected/dog-recommendation-2026-week3.json` | golden ranked dog list from the §7.5 function, all 16 week-3 dogs |
 
 `teams-2026.json → workbookAliases` exists because the workbook spells teams inconsistently —
 `Cincinatti Bengals`, `Detriot Lions`, `Las Angeles Rams`, `LA Rams`, `Los Angeles Rams`,

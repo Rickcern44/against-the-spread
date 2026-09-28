@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using AgainstTheSpread.Web;
 using AgainstTheSpread.Web.Services;
+using AgainstTheSpread.Core.Interfaces;
+using AgainstTheSpread.Core.Fixtures;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -13,6 +15,8 @@ var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? builder.HostEnvironment.
 // Register the API HttpClient for making API calls
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 builder.Services.AddScoped<ApiService>();
+// The Phase 1.5 client seam intentionally runs against a deterministic fixture until Phase 4 wires HTTP.
+builder.Services.AddScoped<IAppApiClient, FakeApiClient>();
 
 // Register services with their own HttpClient instances for web app base address
 // These are scoped services so HttpClient will be disposed when the scope ends

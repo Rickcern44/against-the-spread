@@ -3,5 +3,62 @@
 @using AgainstTheSpread.Core.Interfaces
 @inject IAppApiClient Api
 <PageTitle>My stats</PageTitle>
-<div class="container py-4"><h1>My stats</h1>@if (loading) { <p role="status">Loading stats…</p> } else if (problem is not null) { <div class="alert alert-info" role="status">@problem</div> } else if (standings is not null) { <div class="row"><div class="col-md-3"><strong>Main</strong><div>@standings.Season.Pools.Main</div></div><div class="col-md-3"><strong>Dog</strong><div>@standings.Season.Pools.Dog</div></div><div class="col-md-3"><strong>Regular season</strong><div>@standings.Season.Pools.RegularSeason</div></div><div class="col-md-3"><strong>Playoff</strong><div>@standings.Season.Pools.Playoff</div></div></div><p class="mt-4"><strong>Going Perf:</strong> @(standings.Season.GoingPerfRecordTotal?.ToString() ?? "—") &nbsp; <strong>0fer:</strong> @(standings.Season.OferRecordTotal?.ToString() ?? "—")</p><h2 class="h4">Week-by-week</h2><table class="table"><thead><tr><th>Week</th><th>Starter</th><th>Dog</th><th>Going Perf</th><th>0fer</th></tr></thead><tbody>@foreach (var history in standings.WeeklyHistory) { <tr><td>@history.Week</td><td>@history.Score.StarterPoints</td><td>@history.Score.DogPoints</td><td>@(history.Score.IsGoingPerf ? "Yes" : "—")</td><td>@(history.Score.IsOfer ? "Yes" : "—")</td></tr> }</tbody></table> }</div>
-@code { private bool loading = true; private string? problem; private StandingsResponse? standings; protected override async Task OnInitializedAsync() { var result = await Api.GetStandingsAsync(); standings = result.Data; problem = result.Problem?.Message; loading = false; } }
+
+<div class="page-eyebrow">Personal standing</div>
+<h1 class="page-heading">My stats</h1>
+<p class="page-subtitle">Every week, scored.</p>
+
+@if (loading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+}
+else if (problem is not null)
+{
+    <MudAlert Severity="Severity.Info">@problem</MudAlert>
+}
+else if (standings is not null)
+{
+    <MudGrid Class="mb-4">
+        <MudItem xs="6" sm="3"><MudPaper Class="pool-card" Elevation="0"><span class="pool-label">Main</span><span class="pool-value">@standings.Season.Pools.Main.ToString("0.##")</span></MudPaper></MudItem>
+        <MudItem xs="6" sm="3"><MudPaper Class="pool-card" Elevation="0"><span class="pool-label">Dog</span><span class="pool-value">@standings.Season.Pools.Dog.ToString("0.##")</span></MudPaper></MudItem>
+        <MudItem xs="6" sm="3"><MudPaper Class="pool-card" Elevation="0"><span class="pool-label">Regular season</span><span class="pool-value">@standings.Season.Pools.RegularSeason.ToString("0.##")</span></MudPaper></MudItem>
+        <MudItem xs="6" sm="3"><MudPaper Class="pool-card" Elevation="0"><span class="pool-label">Playoff</span><span class="pool-value">@standings.Season.Pools.Playoff.ToString("0.##")</span></MudPaper></MudItem>
+    </MudGrid>
+
+    <div class="badge-row mb-5">
+        <span class="record-badge perf">Going Perf: @(standings.Season.GoingPerfRecordTotal?.ToString("0.#") ?? "—")</span>
+        <span class="record-badge ofer">0fer: @(standings.Season.OferRecordTotal?.ToString("0.#") ?? "—")</span>
+    </div>
+
+    <MudPaper Class="surface-panel" Elevation="0">
+        <h2 class="section-heading mb-3">Week-by-week</h2>
+        <MudTable Items="@standings.WeeklyHistory" Dense="true" Hover="true" Class="ats-table">
+            <HeaderContent>
+                <MudTh>Week</MudTh>
+                <MudTh>Starter</MudTh>
+                <MudTh>Dog</MudTh>
+                <MudTh>Going Perf</MudTh>
+                <MudTh>0fer</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Week" Class="mono">@context.Week</MudTd>
+                <MudTd DataLabel="Starter" Class="mono">@context.Score.StarterPoints</MudTd>
+                <MudTd DataLabel="Dog" Class="mono">@context.Score.DogPoints</MudTd>
+                <MudTd DataLabel="Going Perf">@(context.Score.IsGoingPerf ? "Yes" : "—")</MudTd>
+                <MudTd DataLabel="0fer">@(context.Score.IsOfer ? "Yes" : "—")</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+}
+@code {
+    private bool loading = true;
+    private string? problem;
+    private StandingsResponse? standings;
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Api.GetStandingsAsync();
+        standings = result.Data;
+        problem = result.Problem?.Message;
+        loading = false;
+    }
+}

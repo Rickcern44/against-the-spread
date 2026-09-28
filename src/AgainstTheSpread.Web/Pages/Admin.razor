@@ -4,5 +4,124 @@
 @using Microsoft.AspNetCore.Components.Forms
 @inject IAppApiClient Api
 <PageTitle>Weekly data console</PageTitle>
-<div class="container py-4"><h1>Weekly data console</h1><p class="text-muted">Lines and results are pulled automatically. Use this page to re-trigger a pull or correct an official line.</p><div class="mb-3"><label class="form-label" for="week">Week</label><select id="week" class="form-select" @bind="week" @bind:after="LoadAsync">@for (var item = 1; item <= 18; item++) { <option value="@item">Week @item</option> }</select></div>@if (loading) { <p role="status">Loading data status…</p> } else if (problem is not null) { <div class="alert alert-warning" role="alert">@problem</div> } else if (status is not null) { <table class="table"><thead><tr><th>Pull</th><th>Status</th><th>Last completed</th><th></th></tr></thead><tbody><tr><td>Odds / lines</td><td>@PullStatus(status.Lines)</td><td>@Completed(status.Lines)</td><td><button class="btn btn-outline-primary" @onclick="() => RetriggerAsync(DataPullKind.Lines)">Re-trigger</button></td></tr><tr><td>Scores / results</td><td>@PullStatus(status.Results)</td><td>@Completed(status.Results)</td><td><button class="btn btn-outline-primary" @onclick="() => RetriggerAsync(DataPullKind.Results)">Re-trigger</button></td></tr></tbody></table><EditForm Model="this" OnValidSubmit="OverrideAsync"><h2 class="h4">Official-line override</h2><div class="row"><div class="col-md-6 mb-3"><label class="form-label" for="gameId">Game ID</label><input id="gameId" class="form-control" @bind="gameId" /></div><div class="col-md-6 mb-3"><label class="form-label" for="officialLine">Points laid by favorite</label><input id="officialLine" class="form-control" type="number" step="0.5" @bind="officialLine" /></div></div><button class="btn btn-primary" type="submit">Save override</button></EditForm><h2 class="h4 mt-4">Manual fallback</h2><p>Stage a CSV or text extract, then re-trigger the supported lines pull. The locked contract has no upload payload, so staged content is deliberately not sent as an undocumented request.</p><InputFile OnChange="SelectFile" /><textarea class="form-control mt-2" rows="3" @bind="pastedLines" placeholder="Paste lines for operator review"></textarea><button class="btn btn-outline-secondary mt-2" @onclick="() => RetriggerAsync(DataPullKind.Lines)">Re-trigger lines pull</button> } @if (message is not null) { <div class="alert alert-success mt-3" role="status">@message</div> }</div>
-@code { private int week = 1; private bool loading = true; private string? problem, message, gameId, pastedLines; private decimal officialLine; private IBrowserFile? stagedFile; private WeekDataStatusResponse? status; protected override Task OnInitializedAsync() => LoadAsync(); private async Task LoadAsync() { loading = true; problem = null; var result = await Api.GetWeekDataAsync(week); status = result.Data; problem = result.Problem?.Message; loading = false; } private async Task RetriggerAsync(DataPullKind pull) { message = null; var result = await Api.PostWeekDataAsync(week, new(Pull: pull)); if (!result.Succeeded) problem = result.Problem!.Message; else { status = result.Data; message = $"{pull} pull requested."; } } private async Task OverrideAsync() { if (string.IsNullOrWhiteSpace(gameId) || officialLine < 0) { problem = "Enter a game ID and a non-negative official line."; return; } var result = await Api.PostWeekDataAsync(week, new(OfficialLineOverride: new(gameId, officialLine))); if (!result.Succeeded) problem = result.Problem!.Message; else { status = result.Data; message = "Official line override saved."; } } private void SelectFile(InputFileChangeEventArgs args) => stagedFile = args.File; private static string PullStatus(DataPullStatus pull) => pull.Succeeded ? "Ready" : pull.Problem?.Message ?? "Pending"; private static string Completed(DataPullStatus pull) => pull.CompletedAt?.ToLocalTime().ToString("g") ?? "Not completed"; }
+
+<div class="page-eyebrow">Commissioner tools</div>
+<h1 class="page-heading">Weekly data console</h1>
+<p class="page-subtitle">Lines and results are pulled automatically. Use this page to re-trigger a pull or correct an official line.</p>
+
+<MudPaper Class="surface-panel mb-5" Elevation="0">
+    <MudSelect T="int" Value="week" ValueChanged="OnWeekChanged" Label="Week" Variant="Variant.Outlined" Dense="true" Class="week-select">
+        @for (var item = 1; item <= 18; item++)
+        {
+            var w = item;
+            <MudSelectItem Value="@w">Week @w</MudSelectItem>
+        }
+    </MudSelect>
+</MudPaper>
+
+@if (loading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+}
+else if (problem is not null)
+{
+    <MudAlert Severity="Severity.Warning">@problem</MudAlert>
+}
+else if (status is not null)
+{
+    <MudPaper Class="surface-panel mb-4" Elevation="0">
+        <h2 class="section-heading mb-3">Data pulls</h2>
+        <MudSimpleTable Dense="true" Class="ats-table">
+            <thead>
+                <tr><th>Pull</th><th>Status</th><th>Last completed</th><th></th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Odds / lines</td>
+                    <td>@PullStatus(status.Lines)</td>
+                    <td class="mono">@Completed(status.Lines)</td>
+                    <td><MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="() => RetriggerAsync(DataPullKind.Lines)">Re-trigger</MudButton></td>
+                </tr>
+                <tr>
+                    <td>Scores / results</td>
+                    <td>@PullStatus(status.Results)</td>
+                    <td class="mono">@Completed(status.Results)</td>
+                    <td><MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="() => RetriggerAsync(DataPullKind.Results)">Re-trigger</MudButton></td>
+                </tr>
+            </tbody>
+        </MudSimpleTable>
+    </MudPaper>
+
+    <MudPaper Class="surface-panel mb-4" Elevation="0">
+        <EditForm Model="this" OnValidSubmit="OverrideAsync">
+            <h2 class="section-heading mb-3">Official-line override</h2>
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="gameId" Label="Game ID" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="officialLine" Label="Points laid by favorite" Step="0.5m" Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3">Save override</MudButton>
+        </EditForm>
+    </MudPaper>
+
+    <MudPaper Class="surface-panel" Elevation="0">
+        <h2 class="section-heading mb-2">Manual fallback</h2>
+        <p class="page-subtitle" style="margin-bottom:1rem">Stage a CSV or text extract, then re-trigger the supported lines pull. The locked contract has no upload payload, so staged content is deliberately not sent as an undocumented request.</p>
+        <InputFile OnChange="SelectFile" />
+        <MudTextField @bind-Value="pastedLines" Label="Paste lines for operator review" Lines="3" Variant="Variant.Outlined" Class="mt-3" />
+        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Class="mt-3" OnClick="() => RetriggerAsync(DataPullKind.Lines)">Re-trigger lines pull</MudButton>
+    </MudPaper>
+}
+@if (message is not null)
+{
+    <MudAlert Severity="Severity.Success" Class="mt-3">@message</MudAlert>
+}
+
+@code {
+    private int week = 1;
+    private bool loading = true;
+    private string? problem, message, gameId, pastedLines;
+    private decimal officialLine;
+    private IBrowserFile? stagedFile;
+    private WeekDataStatusResponse? status;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task OnWeekChanged(int value) { week = value; return LoadAsync(); }
+
+    private async Task LoadAsync()
+    {
+        loading = true; problem = null;
+        var result = await Api.GetWeekDataAsync(week);
+        status = result.Data;
+        problem = result.Problem?.Message;
+        loading = false;
+    }
+
+    private async Task RetriggerAsync(DataPullKind pull)
+    {
+        message = null;
+        var result = await Api.PostWeekDataAsync(week, new(Pull: pull));
+        if (!result.Succeeded) problem = result.Problem!.Message;
+        else { status = result.Data; message = $"{pull} pull requested."; }
+    }
+
+    private async Task OverrideAsync()
+    {
+        if (string.IsNullOrWhiteSpace(gameId) || officialLine < 0)
+        {
+            problem = "Enter a game ID and a non-negative official line.";
+            return;
+        }
+        var result = await Api.PostWeekDataAsync(week, new(OfficialLineOverride: new(gameId, officialLine)));
+        if (!result.Succeeded) problem = result.Problem!.Message;
+        else { status = result.Data; message = "Official line override saved."; }
+    }
+
+    private void SelectFile(InputFileChangeEventArgs args) => stagedFile = args.File;
+    private static string PullStatus(DataPullStatus pull) => pull.Succeeded ? "Ready" : pull.Problem?.Message ?? "Pending";
+    private static string Completed(DataPullStatus pull) => pull.CompletedAt?.ToLocalTime().ToString("g") ?? "Not completed";
+}

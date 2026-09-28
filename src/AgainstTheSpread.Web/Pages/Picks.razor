@@ -5,30 +5,155 @@
 @inject IAppApiClient Api
 
 <PageTitle>Weekly picks</PageTitle>
-<div class="container py-4">
-    <h1>Weekly picks</h1>
-    <p class="text-muted">Ranked recommendations are guidance. Log your actual three starters and one dog below.</p>
-    <div class="mb-3"><label class="form-label" for="week">Week</label><select id="week" class="form-select" @bind="week" @bind:after="LoadAsync">@for (var item = 1; item <= 18; item++) { <option value="@item">Week @item</option> }</select></div>
-    @if (loading) { <p role="status">Loading week…</p> }
-    else if (problem is not null) { <div class="alert alert-warning" role="alert">@problem <button class="btn btn-link p-0 ms-2" @onclick="LoadAsync">Retry</button></div> }
-    else if (games is not null && recommendation is not null)
+
+<div class="page-eyebrow">Game plan</div>
+<h1 class="page-heading">Weekly picks</h1>
+<p class="page-subtitle">Ranked recommendations are guidance. Log your actual three starters and one dog below.</p>
+
+<MudPaper Class="surface-panel mb-5" Elevation="0">
+    <MudSelect T="int" Value="week" ValueChanged="OnWeekChanged" Label="Week" Variant="Variant.Outlined" Dense="true" Class="week-select">
+        @for (var item = 1; item <= 18; item++)
+        {
+            var w = item;
+            <MudSelectItem Value="@w">Week @w</MudSelectItem>
+        }
+    </MudSelect>
+</MudPaper>
+
+@if (loading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+}
+else if (problem is not null)
+{
+    <MudAlert Severity="Severity.Warning" Class="mb-4">
+        @problem <MudButton Variant="Variant.Text" Color="Color.Inherit" OnClick="LoadAsync" Class="ml-2">Retry</MudButton>
+    </MudAlert>
+}
+else if (games is not null && recommendation is not null)
+{
+    <h2 class="section-heading mb-3">This week's ranked recommendation</h2>
+    <div class="recommendation-grid mb-6">
+        @for (var index = 0; index < recommendation.Starters.Count; index++)
+        {
+            var starter = recommendation.Starters[index];
+            var dog = recommendation.Dogs.ElementAtOrDefault(index);
+            var team = Team(starter.TeamId);
+            <div class="recommendation-card">
+                <span class="recommendation-rank">#@starter.Rank</span>
+                <div class="recommendation-body">
+                    <div class="recommendation-team">
+                        @TeamName(starter.TeamId)
+                        <span class="tier-chip"><span class="tier-dot" style="background:@team.TierColorHex"></span>@team.PointValue pt</span>
+                    </div>
+                    <div class="recommendation-meta mono">@starter.WinProbability.ToString("P0") win · Dog: @(dog is null ? "—" : TeamName(dog.TeamId))</div>
+                </div>
+                <div class="recommendation-ev">
+                    <span class="ev-label">EV</span>
+                    <span class="ev-value mono">@starter.ExpectedValue.ToString("0.00")</span>
+                </div>
+            </div>
+        }
+    </div>
+
+    <MudPaper Class="surface-panel" Elevation="0">
+        <h2 class="section-heading mb-3">Your actual picks</h2>
+        <MudGrid>
+            @for (var index = 0; index < 3; index++)
+            {
+                var selectionIndex = index;
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="string" Value="@starters[selectionIndex]" ValueChanged="@(value => SetStarter(selectionIndex, value))"
+                               Label="@($"Starter {selectionIndex + 1}")" Variant="Variant.Outlined" Dense="true">
+                        @foreach (var team in games.Teams)
+                        {
+                            <MudSelectItem Value="@team.Id">@team.DisplayName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            }
+            <MudItem xs="12" sm="4">
+                <MudSelect T="string" @bind-Value="dogTeamId" Label="Dog" Variant="Variant.Outlined" Dense="true">
+                    @foreach (var game in games.Games)
+                    {
+                        <MudSelectItem Value="@game.UnderdogTeamId">@TeamName(game.UnderdogTeamId)</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="@saving" Class="mt-4">
+            @(saving ? "Saving…" : "Save picks")
+        </MudButton>
+        @if (saveMessage is not null)
+        {
+            <MudAlert Severity="Severity.Success" Class="mt-3">@saveMessage</MudAlert>
+        }
+    </MudPaper>
+
+    @if (score is not null)
     {
-        <h2 class="h4">This week’s ranked recommendation</h2>
-        <table class="table"><thead><tr><th>Rank</th><th>Starter</th><th>Win probability</th><th>Dog option</th></tr></thead><tbody>
-            @for (var index = 0; index < recommendation.Starters.Count; index++) { var starter = recommendation.Starters[index]; var dog = recommendation.Dogs.ElementAtOrDefault(index); <tr><td>@starter.Rank</td><td>@TeamName(starter.TeamId)</td><td>@starter.WinProbability.ToString("P0")</td><td>@(dog is null ? "—" : TeamName(dog.TeamId))</td></tr> }
-        </tbody></table>
-        <EditForm Model="this" OnValidSubmit="SaveAsync"><h2 class="h4">Your actual picks</h2><div class="row">
-            @for (var index = 0; index < 3; index++) { var selectionIndex = index; <div class="col-md-4 mb-3"><label class="form-label" for="starter-@selectionIndex">Starter @(selectionIndex + 1)</label><select id="starter-@selectionIndex" class="form-select" value="@starters[selectionIndex]" @onchange="e => SetStarter(selectionIndex, e.Value?.ToString())"><option value="">Choose a team</option>@foreach (var team in games.Teams) { <option value="@team.Id">@team.DisplayName</option> }</select></div> }
-        </div><div class="mb-3"><label class="form-label" for="dog">Dog</label><select id="dog" class="form-select" @bind="dogTeamId"><option value="">Choose an underdog</option>@foreach (var game in games.Games) { <option value="@game.UnderdogTeamId">@TeamName(game.UnderdogTeamId)</option> }</select></div><button class="btn btn-primary" type="submit" disabled="@saving">@(saving ? "Saving…" : "Save picks")</button></EditForm>
-        @if (saveMessage is not null) { <div class="alert alert-success mt-3" role="status">@saveMessage</div> }
-        @if (score is not null) { <div class="alert alert-info mt-4"><strong>Running score:</strong> @score.StarterPoints starter points + @score.DogPoints dog points. <a href="mystats">View all stats</a>.</div> }
+        <MudAlert Severity="Severity.Info" Class="mt-4">
+            <strong>Running score:</strong> @score.StarterPoints starter points + @score.DogPoints dog points.
+            <MudLink Href="mystats" Class="ml-1">View all stats</MudLink>
+        </MudAlert>
     }
-</div>
+}
+
 @code {
-    private int week = 1; private bool loading = true, saving; private string? problem, saveMessage, dogTeamId; private readonly string?[] starters = new string?[3]; private WeekGamesResponse? games; private WeekRecommendationResponse? recommendation; private WeeklyScore? score;
+    private int week = 1;
+    private bool loading = true, saving;
+    private string? problem, saveMessage, dogTeamId;
+    private readonly string?[] starters = new string?[3];
+    private WeekGamesResponse? games;
+    private WeekRecommendationResponse? recommendation;
+    private WeeklyScore? score;
+
     protected override Task OnInitializedAsync() => LoadAsync();
-    private async Task LoadAsync() { loading = true; problem = null; saveMessage = null; games = null; recommendation = null; score = null; var gameResult = await Api.GetWeekGamesAsync(week); var recommendationResult = await Api.GetWeekRecommendationAsync(week); if (!gameResult.Succeeded) problem = gameResult.Problem!.Message; else if (!recommendationResult.Succeeded) problem = recommendationResult.Problem!.Message; else { games = gameResult.Data!; recommendation = recommendationResult.Data!; var picks = await Api.GetWeekPicksAsync(week); if (picks.Data is not null) { var pick = picks.Data.Pick; for (var index = 0; index < 3; index++) starters[index] = pick.StarterTeamIds.ElementAtOrDefault(index); dogTeamId = pick.DogPicks.SingleOrDefault()?.TeamId; } var standings = await Api.GetStandingsAsync(); score = standings.Data?.WeeklyHistory.SingleOrDefault(history => history.Week == week)?.Score; } loading = false; }
+
+    private Task OnWeekChanged(int value) { week = value; return LoadAsync(); }
+
+    private async Task LoadAsync()
+    {
+        loading = true; problem = null; saveMessage = null; games = null; recommendation = null; score = null;
+        var gameResult = await Api.GetWeekGamesAsync(week);
+        var recommendationResult = await Api.GetWeekRecommendationAsync(week);
+        if (!gameResult.Succeeded) problem = gameResult.Problem!.Message;
+        else if (!recommendationResult.Succeeded) problem = recommendationResult.Problem!.Message;
+        else
+        {
+            games = gameResult.Data!;
+            recommendation = recommendationResult.Data!;
+            var picks = await Api.GetWeekPicksAsync(week);
+            if (picks.Data is not null)
+            {
+                var pick = picks.Data.Pick;
+                for (var index = 0; index < 3; index++) starters[index] = pick.StarterTeamIds.ElementAtOrDefault(index);
+                dogTeamId = pick.DogPicks.SingleOrDefault()?.TeamId;
+            }
+            var standings = await Api.GetStandingsAsync();
+            score = standings.Data?.WeeklyHistory.SingleOrDefault(history => history.Week == week)?.Score;
+        }
+        loading = false;
+    }
+
     private void SetStarter(int index, string? value) => starters[index] = value;
-    private async Task SaveAsync() { if (games is null || starters.Any(string.IsNullOrWhiteSpace) || starters.Distinct(StringComparer.OrdinalIgnoreCase).Count() != 3 || string.IsNullOrWhiteSpace(dogTeamId)) { problem = "Choose three distinct starters and one dog before saving."; return; } var dogGame = games.Games.SingleOrDefault(game => game.UnderdogTeamId == dogTeamId); if (dogGame is null) { problem = "The dog must be an underdog in this week’s games."; return; } saving = true; problem = null; var response = await Api.SaveWeekPicksAsync(week, new(new WeeklyPick(week, starters!, new[] { new DogPick(dogGame.Id, dogTeamId) }))); saving = false; if (!response.Succeeded) problem = response.Problem!.Message; else saveMessage = "Your picks are saved."; }
-    private string TeamName(string id) => games?.Teams.SingleOrDefault(team => team.Id == id)?.DisplayName ?? id;
+
+    private async Task SaveAsync()
+    {
+        if (games is null || starters.Any(string.IsNullOrWhiteSpace) || starters.Distinct(StringComparer.OrdinalIgnoreCase).Count() != 3 || string.IsNullOrWhiteSpace(dogTeamId))
+        {
+            problem = "Choose three distinct starters and one dog before saving.";
+            return;
+        }
+        var dogGame = games.Games.SingleOrDefault(game => game.UnderdogTeamId == dogTeamId);
+        if (dogGame is null) { problem = "The dog must be an underdog in this week's games."; return; }
+        saving = true; problem = null;
+        var response = await Api.SaveWeekPicksAsync(week, new(new WeeklyPick(week, starters!, new[] { new DogPick(dogGame.Id, dogTeamId) })));
+        saving = false;
+        if (!response.Succeeded) problem = response.Problem!.Message;
+        else saveMessage = "Your picks are saved.";
+    }
+
+    private string TeamName(string id) => Team(id).DisplayName;
+    private Team Team(string id) => games?.Teams.SingleOrDefault(team => team.Id == id) ?? new Team(id, id, 4, 1);
 }

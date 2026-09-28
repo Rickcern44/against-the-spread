@@ -7,6 +7,12 @@ namespace AgainstTheSpread.Core.Interfaces;
 /// </summary>
 public interface IStorageService
 {
+    Task SaveRosterAsync(SeasonRoster roster, CancellationToken cancellationToken = default);
+    Task<SeasonRoster?> GetRosterAsync(int season, CancellationToken cancellationToken = default);
+    Task SaveWeeklyGamesAsync(int season, int week, IReadOnlyList<WeeklyGame> games, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<WeeklyGame>?> GetWeeklyGamesAsync(int season, int week, CancellationToken cancellationToken = default);
+    Task SaveWeeklyPickAsync(int season, WeeklyPick pick, CancellationToken cancellationToken = default);
+    Task<WeeklyPick?> GetWeeklyPickAsync(int season, int week, CancellationToken cancellationToken = default);
     /// <summary>
     /// Uploads weekly lines Excel file and parsed JSON to blob storage
     /// </summary>

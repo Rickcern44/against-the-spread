@@ -32,6 +32,10 @@ public sealed class FakeApiClient : IAppApiClient
         new DataPullStatus(true, new DateTimeOffset(2026, 9, 8, 14, 0, 0, TimeSpan.Zero)),
         new DataPullStatus(true, new DateTimeOffset(2026, 9, 15, 4, 0, 0, TimeSpan.Zero)));
 
+    private static readonly StandingsResponse Standings = new(
+        new SeasonScore(new PoolTotals(11m, 2m, 13m, 0m), new TierWinCounts(Green: 2, Blue: 1), 1m, 0m, new[] { 7 }),
+        new[] { new WeekScoreHistory(1, new WeeklyScore(11m, 0m, 2m, new PoolTotals(11m, 2m, 13m, 0m), new TierWinCounts(Green: 2, Blue: 1), false, true, false, 13m, true, false, new[] { 7 })) });
+
     public Task<ApiResponse<WeekGamesResponse>> GetWeekGamesAsync(int week, CancellationToken cancellationToken = default) =>
         Task.FromResult(week == 1 ? ApiResponse<WeekGamesResponse>.Success(new(1, WeekOneGames, WeekOneTeams)) : NotPulled<WeekGamesResponse>(week));
     public Task<ApiResponse<WeekPicksResponse>> GetWeekPicksAsync(int week, CancellationToken cancellationToken = default) =>
@@ -41,9 +45,13 @@ public sealed class FakeApiClient : IAppApiClient
     public Task<ApiResponse<WeekRecommendationResponse>> GetWeekRecommendationAsync(int week, CancellationToken cancellationToken = default) =>
         Task.FromResult(week == 1 ? ApiResponse<WeekRecommendationResponse>.Success(WeekOneRecommendation) : NotPulled<WeekRecommendationResponse>(week));
     public Task<ApiResponse<StandingsResponse>> GetStandingsAsync(CancellationToken cancellationToken = default) =>
-        Task.FromResult(ApiResponse<StandingsResponse>.Failure(new(ApiProblemCode.SeasonNotStarted, "The season has not started.")));
+        Task.FromResult(ApiResponse<StandingsResponse>.Success(Standings));
     public Task<ApiResponse<WeekDataStatusResponse>> GetWeekDataAsync(int week, CancellationToken cancellationToken = default) =>
-        Task.FromResult(week == 1 ? ApiResponse<WeekDataStatusResponse>.Success(WeekOneData) : NotPulled<WeekDataStatusResponse>(week));
+        Task.FromResult(week == 1 ? ApiResponse<WeekDataStatusResponse>.Success(WeekOneData) : week == 17
+            ? ApiResponse<WeekDataStatusResponse>.Success(new(17,
+                new DataPullStatus(false, null, new(ApiProblemCode.ProviderUnavailable, "Odds provider is temporarily unavailable.", true)),
+                new DataPullStatus(false, null, new(ApiProblemCode.ProviderUnavailable, "Scores provider is temporarily unavailable.", true))))
+            : NotPulled<WeekDataStatusResponse>(week));
     public Task<ApiResponse<WeekDataStatusResponse>> PostWeekDataAsync(int week, PostWeekDataRequest request, CancellationToken cancellationToken = default) =>
         Task.FromResult(week == 1 ? ApiResponse<WeekDataStatusResponse>.Success(WeekOneData) : NotPulled<WeekDataStatusResponse>(week));
 

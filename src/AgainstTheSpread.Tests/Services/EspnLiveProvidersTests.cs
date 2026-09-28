@@ -28,9 +28,8 @@ public sealed class EspnLiveProvidersTests
 
     private static HttpClient Client(string json) => new(new StaticResponseHandler(json)) { BaseAddress = new Uri("https://example.test/") };
 
-    private static string Scoreboard(bool completed) => $$"""
-        {"events":[{"id":"game-1","status":{"type":{"completed":{{completed.ToString().ToLowerInvariant()}}}},"competitions":[{"odds":[{"details":"PHI -3.5"}],"competitors":[{"homeAway":"away","score":"24","team":{"abbreviation":"PHI"}},{"homeAway":"home","score":"17","team":{"abbreviation":"CHI"}}]}]}]}
-        """;
+    private static string Scoreboard(bool completed) =>
+        $"{{\"events\":[{{\"id\":\"game-1\",\"status\":{{\"type\":{{\"completed\":{completed.ToString().ToLowerInvariant()}}}}},\"competitions\":[{{\"odds\":[{{\"details\":\"PHI -3.5\"}}],\"competitors\":[{{\"homeAway\":\"away\",\"score\":\"24\",\"team\":{{\"abbreviation\":\"PHI\"}}}},{{\"homeAway\":\"home\",\"score\":\"17\",\"team\":{{\"abbreviation\":\"CHI\"}}}}]}}]}}]}}";
 
     private sealed class StaticResponseHandler(string json) : HttpMessageHandler
     {

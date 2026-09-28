@@ -58,9 +58,9 @@ public class TeamColorServiceTests
         // Arrange
         var mapping = new Dictionary<string, TeamColors>
         {
-            { "Alabama", new TeamColors { Primary = "#9E1B32", Secondary = "#828A8F" } },
-            { "Michigan", new TeamColors { Primary = "#00274C", Secondary = "#FFCB05" } },
-            { "Notre Dame", new TeamColors { Primary = "#0C2340", Secondary = "#C99700" } }
+            { "ARI", new TeamColors { Primary = "#97233F", Secondary = "#000000" } },
+            { "BAL", new TeamColors { Primary = "#241773", Secondary = "#9E7C0C" } },
+            { "BUF", new TeamColors { Primary = "#0C2340", Secondary = "#C99700" } }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamColorService(_loggerMock, httpClient);
@@ -69,9 +69,9 @@ public class TeamColorServiceTests
         await service.InitializeAsync(httpClient);
 
         // Assert
-        Assert.True(service.HasColors("Alabama"));
-        Assert.True(service.HasColors("Michigan"));
-        Assert.True(service.HasColors("Notre Dame"));
+        Assert.True(service.HasColors("ARI"));
+        Assert.True(service.HasColors("BAL"));
+        Assert.True(service.HasColors("BUF"));
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public class TeamColorServiceTests
         await service.InitializeAsync(httpClient);
 
         // Assert
-        Assert.False(service.HasColors("Alabama"));
+        Assert.False(service.HasColors("ARI"));
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class TeamColorServiceTests
         await service.InitializeAsync(httpClient);
 
         // Assert
-        Assert.False(service.HasColors("Alabama"));
+        Assert.False(service.HasColors("ARI"));
     }
 
     [Fact]
@@ -109,20 +109,20 @@ public class TeamColorServiceTests
         // Arrange
         var mapping = new Dictionary<string, TeamColors>
         {
-            { "Alabama", new TeamColors { Primary = "#9E1B32", Secondary = "#828A8F" } },
-            { "Michigan", new TeamColors { Primary = "#00274C", Secondary = "#FFCB05" } }
+            { "ARI", new TeamColors { Primary = "#97233F", Secondary = "#000000" } },
+            { "BAL", new TeamColors { Primary = "#241773", Secondary = "#9E7C0C" } }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamColorService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act
-        var colors = service.GetTeamColors("Alabama");
+        var colors = service.GetTeamColors("ARI");
 
         // Assert
         Assert.NotNull(colors);
-        Assert.Equal("#9E1B32", colors.Primary);
-        Assert.Equal("#828A8F", colors.Secondary);
+        Assert.Equal("#97233F", colors.Primary);
+        Assert.Equal("#000000", colors.Secondary);
     }
 
     [Fact]
@@ -131,23 +131,23 @@ public class TeamColorServiceTests
         // Arrange
         var mapping = new Dictionary<string, TeamColors>
         {
-            { "Alabama", new TeamColors { Primary = "#9E1B32", Secondary = "#828A8F" } }
+            { "ARI", new TeamColors { Primary = "#97233F", Secondary = "#000000" } }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamColorService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act & Assert
-        var colors1 = service.GetTeamColors("alabama");
-        var colors2 = service.GetTeamColors("ALABAMA");
-        var colors3 = service.GetTeamColors("AlAbAmA");
+        var colors1 = service.GetTeamColors("ari");
+        var colors2 = service.GetTeamColors("ARI");
+        var colors3 = service.GetTeamColors("ArI");
 
         Assert.NotNull(colors1);
         Assert.NotNull(colors2);
         Assert.NotNull(colors3);
-        Assert.Equal("#9E1B32", colors1.Primary);
-        Assert.Equal("#9E1B32", colors2.Primary);
-        Assert.Equal("#9E1B32", colors3.Primary);
+        Assert.Equal("#97233F", colors1.Primary);
+        Assert.Equal("#97233F", colors2.Primary);
+        Assert.Equal("#97233F", colors3.Primary);
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class TeamColorServiceTests
         // Arrange
         var mapping = new Dictionary<string, TeamColors>
         {
-            { "Alabama", new TeamColors { Primary = "#9E1B32", Secondary = "#828A8F" } }
+            { "ARI", new TeamColors { Primary = "#97233F", Secondary = "#000000" } }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamColorService(_loggerMock, httpClient);
@@ -217,19 +217,19 @@ public class TeamColorServiceTests
         // Arrange
         var mapping = new Dictionary<string, TeamColors>
         {
-            { "Alabama Crimson Tide", new TeamColors { Primary = "#9E1B32", Secondary = "#828A8F" } },
-            { "Michigan Wolverines", new TeamColors { Primary = "#00274C", Secondary = "#FFCB05" } }
+            { "ARI Cardinals", new TeamColors { Primary = "#97233F", Secondary = "#000000" } },
+            { "BAL Ravens", new TeamColors { Primary = "#241773", Secondary = "#9E7C0C" } }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamColorService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act
-        var colors = service.GetTeamColors("Alabama");
+        var colors = service.GetTeamColors("ARI");
 
         // Assert
         Assert.NotNull(colors);
-        Assert.Equal("#9E1B32", colors.Primary);
+        Assert.Equal("#97233F", colors.Primary);
     }
 
     [Fact]
@@ -238,18 +238,18 @@ public class TeamColorServiceTests
         // Arrange
         var mapping = new Dictionary<string, TeamColors>
         {
-            { "Alabama", new TeamColors { Primary = "#9E1B32", Secondary = "#828A8F" } }
+            { "ARI", new TeamColors { Primary = "#97233F", Secondary = "#000000" } }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamColorService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act
-        var colors = service.GetTeamColors("Alabama Crimson Tide");
+        var colors = service.GetTeamColors("ARI Cardinals");
 
         // Assert
         Assert.NotNull(colors);
-        Assert.Equal("#9E1B32", colors.Primary);
+        Assert.Equal("#97233F", colors.Primary);
     }
 
     [Fact]
@@ -258,19 +258,19 @@ public class TeamColorServiceTests
         // Arrange
         var mapping = new Dictionary<string, TeamColors>
         {
-            { "Alabama", new TeamColors { Primary = "#9E1B32", Secondary = "#828A8F" } },
-            { "Alabama Crimson Tide", new TeamColors { Primary = "#FF0000", Secondary = "#000000" } }
+            { "ARI", new TeamColors { Primary = "#97233F", Secondary = "#000000" } },
+            { "ARI Cardinals", new TeamColors { Primary = "#FF0000", Secondary = "#000000" } }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamColorService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act
-        var colors = service.GetTeamColors("Alabama");
+        var colors = service.GetTeamColors("ARI");
 
         // Assert
         Assert.NotNull(colors);
-        Assert.Equal("#9E1B32", colors.Primary);
+        Assert.Equal("#97233F", colors.Primary);
     }
 
     [Fact]
@@ -279,14 +279,14 @@ public class TeamColorServiceTests
         // Arrange
         var mapping = new Dictionary<string, TeamColors>
         {
-            { "Alabama", new TeamColors { Primary = "#9E1B32", Secondary = "#828A8F" } }
+            { "ARI", new TeamColors { Primary = "#97233F", Secondary = "#000000" } }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamColorService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act
-        var hasColors = service.HasColors("Alabama");
+        var hasColors = service.HasColors("ARI");
 
         // Assert
         Assert.True(hasColors);
@@ -298,7 +298,7 @@ public class TeamColorServiceTests
         // Arrange
         var mapping = new Dictionary<string, TeamColors>
         {
-            { "Alabama", new TeamColors { Primary = "#9E1B32", Secondary = "#828A8F" } }
+            { "ARI", new TeamColors { Primary = "#97233F", Secondary = "#000000" } }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamColorService(_loggerMock, httpClient);
@@ -331,33 +331,33 @@ public class TeamColorServiceTests
         // Arrange
         var mapping = new Dictionary<string, TeamColors>
         {
-            { "Alabama", new TeamColors { Primary = "#9E1B32", Secondary = "#828A8F" } },
-            { "Michigan", new TeamColors { Primary = "#00274C", Secondary = "#FFCB05" } },
-            { "Ohio State", new TeamColors { Primary = "#BB0000", Secondary = "#666666" } },
-            { "Georgia", new TeamColors { Primary = "#BA0C2F", Secondary = "#000000" } },
-            { "Texas", new TeamColors { Primary = "#BF5700", Secondary = "#FFFFFF" } }
+            { "ARI", new TeamColors { Primary = "#97233F", Secondary = "#000000" } },
+            { "BAL", new TeamColors { Primary = "#241773", Secondary = "#9E7C0C" } },
+            { "CHI", new TeamColors { Primary = "#0B162A", Secondary = "#C83803" } },
+            { "DAL", new TeamColors { Primary = "#003594", Secondary = "#000000" } },
+            { "GB", new TeamColors { Primary = "#203731", Secondary = "#FFB612" } }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamColorService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act & Assert
-        var alabamaColors = service.GetTeamColors("Alabama");
-        var michiganColors = service.GetTeamColors("Michigan");
-        var ohioStateColors = service.GetTeamColors("Ohio State");
-        var georgiaColors = service.GetTeamColors("Georgia");
-        var texasColors = service.GetTeamColors("Texas");
+        var ariColors = service.GetTeamColors("ARI");
+        var michiganColors = service.GetTeamColors("BAL");
+        var ohioStateColors = service.GetTeamColors("CHI");
+        var georgiaColors = service.GetTeamColors("DAL");
+        var texasColors = service.GetTeamColors("GB");
 
-        Assert.NotNull(alabamaColors);
-        Assert.Equal("#9E1B32", alabamaColors.Primary);
+        Assert.NotNull(ariColors);
+        Assert.Equal("#97233F", ariColors.Primary);
         Assert.NotNull(michiganColors);
-        Assert.Equal("#00274C", michiganColors.Primary);
+        Assert.Equal("#241773", michiganColors.Primary);
         Assert.NotNull(ohioStateColors);
-        Assert.Equal("#BB0000", ohioStateColors.Primary);
+        Assert.Equal("#0B162A", ohioStateColors.Primary);
         Assert.NotNull(georgiaColors);
-        Assert.Equal("#BA0C2F", georgiaColors.Primary);
+        Assert.Equal("#003594", georgiaColors.Primary);
         Assert.NotNull(texasColors);
-        Assert.Equal("#BF5700", texasColors.Primary);
+        Assert.Equal("#203731", texasColors.Primary);
     }
 
     [Fact]
@@ -365,8 +365,8 @@ public class TeamColorServiceTests
     {
         // Arrange - Create JSON with lowercase property names like the actual file
         var json = @"{
-            ""Alabama"": { ""primary"": ""#9E1B32"", ""secondary"": ""#828A8F"" },
-            ""Michigan"": { ""primary"": ""#00274C"", ""secondary"": ""#FFCB05"" }
+            ""ARI"": { ""primary"": ""#97233F"", ""secondary"": ""#000000"" },
+            ""BAL"": { ""primary"": ""#241773"", ""secondary"": ""#9E7C0C"" }
         }";
         
         var handler = new StubHttpMessageHandler(() => new HttpResponseMessage
@@ -386,14 +386,14 @@ public class TeamColorServiceTests
         await service.InitializeAsync(httpClient);
 
         // Assert - Verify colors are loaded correctly despite lowercase JSON properties
-        var alabamaColors = service.GetTeamColors("Alabama");
-        var michiganColors = service.GetTeamColors("Michigan");
+        var ariColors = service.GetTeamColors("ARI");
+        var michiganColors = service.GetTeamColors("BAL");
         
-        Assert.NotNull(alabamaColors);
-        Assert.Equal("#9E1B32", alabamaColors.Primary);
-        Assert.Equal("#828A8F", alabamaColors.Secondary);
+        Assert.NotNull(ariColors);
+        Assert.Equal("#97233F", ariColors.Primary);
+        Assert.Equal("#000000", ariColors.Secondary);
         Assert.NotNull(michiganColors);
-        Assert.Equal("#00274C", michiganColors.Primary);
-        Assert.Equal("#FFCB05", michiganColors.Secondary);
+        Assert.Equal("#241773", michiganColors.Primary);
+        Assert.Equal("#9E7C0C", michiganColors.Secondary);
     }
 }

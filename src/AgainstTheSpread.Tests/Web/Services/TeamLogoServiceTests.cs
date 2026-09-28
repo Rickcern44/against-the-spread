@@ -57,9 +57,9 @@ public class TeamLogoServiceTests
         // Arrange
         var mapping = new Dictionary<string, string>
         {
-            { "Alabama", "333" },
-            { "Michigan", "130" },
-            { "Notre Dame", "87" }
+            { "ARI", "ari" },
+            { "BAL", "bal" },
+            { "BUF", "buf" }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamLogoService(_loggerMock, httpClient);
@@ -68,9 +68,9 @@ public class TeamLogoServiceTests
         await service.InitializeAsync(httpClient);
 
         // Assert
-        Assert.True(service.HasLogo("Alabama"));
-        Assert.True(service.HasLogo("Michigan"));
-        Assert.True(service.HasLogo("Notre Dame"));
+        Assert.True(service.HasLogo("ARI"));
+        Assert.True(service.HasLogo("BAL"));
+        Assert.True(service.HasLogo("BUF"));
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class TeamLogoServiceTests
         await service.InitializeAsync(httpClient);
 
         // Assert
-        Assert.False(service.HasLogo("Alabama"));
+        Assert.False(service.HasLogo("ARI"));
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public class TeamLogoServiceTests
         await service.InitializeAsync(httpClient);
 
         // Assert
-        Assert.False(service.HasLogo("Alabama"));
+        Assert.False(service.HasLogo("ARI"));
     }
 
     [Fact]
@@ -108,18 +108,18 @@ public class TeamLogoServiceTests
         // Arrange
         var mapping = new Dictionary<string, string>
         {
-            { "Alabama", "333" },
-            { "Michigan", "130" }
+            { "ARI", "ari" },
+            { "BAL", "bal" }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamLogoService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act
-        var logoUrl = service.GetLogoUrl("Alabama");
+        var logoUrl = service.GetLogoUrl("ARI");
 
         // Assert
-        Assert.Equal("/images/logos/ncaa/333.png", logoUrl);
+        Assert.Equal("/images/logos/nfl/ari.svg", logoUrl);
     }
 
     [Fact]
@@ -128,16 +128,16 @@ public class TeamLogoServiceTests
         // Arrange
         var mapping = new Dictionary<string, string>
         {
-            { "Alabama", "333" }
+            { "ARI", "ari" }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamLogoService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act & Assert
-        Assert.Equal("/images/logos/ncaa/333.png", service.GetLogoUrl("alabama"));
-        Assert.Equal("/images/logos/ncaa/333.png", service.GetLogoUrl("ALABAMA"));
-        Assert.Equal("/images/logos/ncaa/333.png", service.GetLogoUrl("AlAbAmA"));
+        Assert.Equal("/images/logos/nfl/ari.svg", service.GetLogoUrl("ari"));
+        Assert.Equal("/images/logos/nfl/ari.svg", service.GetLogoUrl("ARI"));
+        Assert.Equal("/images/logos/nfl/ari.svg", service.GetLogoUrl("ArI"));
     }
 
     [Fact]
@@ -146,7 +146,7 @@ public class TeamLogoServiceTests
         // Arrange
         var mapping = new Dictionary<string, string>
         {
-            { "Alabama", "333" }
+            { "ARI", "ari" }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamLogoService(_loggerMock, httpClient);
@@ -207,18 +207,18 @@ public class TeamLogoServiceTests
         // Arrange
         var mapping = new Dictionary<string, string>
         {
-            { "Alabama Crimson Tide", "333" },
-            { "Michigan Wolverines", "130" }
+            { "ARI Cardinals", "ari" },
+            { "BAL Ravens", "bal" }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamLogoService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act
-        var logoUrl = service.GetLogoUrl("Alabama");
+        var logoUrl = service.GetLogoUrl("ARI");
 
         // Assert
-        Assert.Equal("/images/logos/ncaa/333.png", logoUrl);
+        Assert.Equal("/images/logos/nfl/ari.svg", logoUrl);
     }
 
     [Fact]
@@ -227,17 +227,17 @@ public class TeamLogoServiceTests
         // Arrange
         var mapping = new Dictionary<string, string>
         {
-            { "Alabama", "333" }
+            { "ARI", "ari" }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamLogoService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act
-        var logoUrl = service.GetLogoUrl("Alabama Crimson Tide");
+        var logoUrl = service.GetLogoUrl("ARI Cardinals");
 
         // Assert
-        Assert.Equal("/images/logos/ncaa/333.png", logoUrl);
+        Assert.Equal("/images/logos/nfl/ari.svg", logoUrl);
     }
 
     [Fact]
@@ -246,18 +246,18 @@ public class TeamLogoServiceTests
         // Arrange
         var mapping = new Dictionary<string, string>
         {
-            { "Alabama", "333" },
-            { "Alabama Crimson Tide", "999" }
+            { "ARI", "ari" },
+            { "ARI Cardinals", "alt" }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamLogoService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act
-        var logoUrl = service.GetLogoUrl("Alabama");
+        var logoUrl = service.GetLogoUrl("ARI");
 
         // Assert
-        Assert.Equal("/images/logos/ncaa/333.png", logoUrl);
+        Assert.Equal("/images/logos/nfl/ari.svg", logoUrl);
     }
 
     [Fact]
@@ -266,14 +266,14 @@ public class TeamLogoServiceTests
         // Arrange
         var mapping = new Dictionary<string, string>
         {
-            { "Alabama", "333" }
+            { "ARI", "ari" }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamLogoService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act
-        var hasLogo = service.HasLogo("Alabama");
+        var hasLogo = service.HasLogo("ARI");
 
         // Assert
         Assert.True(hasLogo);
@@ -285,7 +285,7 @@ public class TeamLogoServiceTests
         // Arrange
         var mapping = new Dictionary<string, string>
         {
-            { "Alabama", "333" }
+            { "ARI", "ari" }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamLogoService(_loggerMock, httpClient);
@@ -318,21 +318,21 @@ public class TeamLogoServiceTests
         // Arrange
         var mapping = new Dictionary<string, string>
         {
-            { "Alabama", "333" },
-            { "Michigan", "130" },
-            { "Ohio State", "194" },
-            { "Georgia", "61" },
-            { "Texas", "251" }
+            { "ARI", "ari" },
+            { "BAL", "bal" },
+            { "CHI", "chi" },
+            { "DAL", "dal" },
+            { "GB", "gb" }
         };
         var httpClient = CreateMockHttpClient(mapping);
         var service = new TeamLogoService(_loggerMock, httpClient);
         await service.InitializeAsync(httpClient);
 
         // Act & Assert
-        Assert.Equal("/images/logos/ncaa/333.png", service.GetLogoUrl("Alabama"));
-        Assert.Equal("/images/logos/ncaa/130.png", service.GetLogoUrl("Michigan"));
-        Assert.Equal("/images/logos/ncaa/194.png", service.GetLogoUrl("Ohio State"));
-        Assert.Equal("/images/logos/ncaa/61.png", service.GetLogoUrl("Georgia"));
-        Assert.Equal("/images/logos/ncaa/251.png", service.GetLogoUrl("Texas"));
+        Assert.Equal("/images/logos/nfl/ari.svg", service.GetLogoUrl("ARI"));
+        Assert.Equal("/images/logos/nfl/bal.svg", service.GetLogoUrl("BAL"));
+        Assert.Equal("/images/logos/nfl/chi.svg", service.GetLogoUrl("CHI"));
+        Assert.Equal("/images/logos/nfl/dal.svg", service.GetLogoUrl("DAL"));
+        Assert.Equal("/images/logos/nfl/gb.svg", service.GetLogoUrl("GB"));
     }
 }

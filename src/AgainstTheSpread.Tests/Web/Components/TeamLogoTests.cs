@@ -20,8 +20,8 @@ public class TeamLogoTests : BunitContext
     public void TeamLogo_RendersImage_WhenLogoExists()
     {
         // Arrange
-        var teamName = "Alabama";
-        var logoUrl = "/images/logos/ncaa/333.png";
+        var teamName = "ARI";
+        var logoUrl = "/images/logos/nfl/ari.svg";
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
         // Act
@@ -82,8 +82,8 @@ public class TeamLogoTests : BunitContext
     public void TeamLogo_AppliesDefaultCssClass()
     {
         // Arrange
-        var teamName = "Michigan";
-        var logoUrl = "/images/logos/ncaa/130.png";
+        var teamName = "BAL";
+        var logoUrl = "/images/logos/nfl/bal.svg";
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
         // Act
@@ -99,8 +99,8 @@ public class TeamLogoTests : BunitContext
     public void TeamLogo_AppliesCustomCssClass()
     {
         // Arrange
-        var teamName = "Michigan";
-        var logoUrl = "/images/logos/ncaa/130.png";
+        var teamName = "BAL";
+        var logoUrl = "/images/logos/nfl/bal.svg";
         var customClass = "custom-logo-class";
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
@@ -118,8 +118,8 @@ public class TeamLogoTests : BunitContext
     public void TeamLogo_AppliesDefaultStyle()
     {
         // Arrange
-        var teamName = "Ohio State";
-        var logoUrl = "/images/logos/ncaa/194.png";
+        var teamName = "CHI";
+        var logoUrl = "/images/logos/nfl/chi.svg";
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
         // Act
@@ -139,8 +139,8 @@ public class TeamLogoTests : BunitContext
     public void TeamLogo_AppliesCustomStyle()
     {
         // Arrange
-        var teamName = "Ohio State";
-        var logoUrl = "/images/logos/ncaa/194.png";
+        var teamName = "CHI";
+        var logoUrl = "/images/logos/nfl/chi.svg";
         var customStyle = "width: 48px; height: 48px;";
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
@@ -158,8 +158,8 @@ public class TeamLogoTests : BunitContext
     public void TeamLogo_HasErrorHandling_OnImageLoadFailure()
     {
         // Arrange
-        var teamName = "Georgia";
-        var logoUrl = "/images/logos/ncaa/61.png";
+        var teamName = "DAL";
+        var logoUrl = "/images/logos/nfl/dal.svg";
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
         // Act
@@ -176,10 +176,10 @@ public class TeamLogoTests : BunitContext
     public void TeamLogo_RendersMultipleInstances_Independently()
     {
         // Arrange
-        var team1 = "Alabama";
-        var team2 = "Michigan";
-        var logo1 = "/images/logos/ncaa/333.png";
-        var logo2 = "/images/logos/ncaa/130.png";
+        var team1 = "ARI";
+        var team2 = "BAL";
+        var logo1 = "/images/logos/nfl/ari.svg";
+        var logo2 = "/images/logos/nfl/bal.svg";
 
         _logoServiceMock.GetLogoUrl(team1).Returns(logo1);
         _logoServiceMock.GetLogoUrl(team2).Returns(logo2);
@@ -203,8 +203,8 @@ public class TeamLogoTests : BunitContext
     public void TeamLogo_CallsServiceWithCorrectTeamName()
     {
         // Arrange
-        var teamName = "Texas";
-        var logoUrl = "/images/logos/ncaa/251.png";
+        var teamName = "GB";
+        var logoUrl = "/images/logos/nfl/gb.svg";
         _logoServiceMock.GetLogoUrl(teamName).Returns(logoUrl);
 
         // Act
@@ -216,11 +216,11 @@ public class TeamLogoTests : BunitContext
     }
 
     [Theory]
-    [InlineData("Alabama", "/images/logos/ncaa/333.png")]
-    [InlineData("Michigan", "/images/logos/ncaa/130.png")]
-    [InlineData("Ohio State", "/images/logos/ncaa/194.png")]
-    [InlineData("Georgia", "/images/logos/ncaa/61.png")]
-    [InlineData("Texas", "/images/logos/ncaa/251.png")]
+    [InlineData("ARI", "/images/logos/nfl/ari.svg")]
+    [InlineData("BAL", "/images/logos/nfl/bal.svg")]
+    [InlineData("CHI", "/images/logos/nfl/chi.svg")]
+    [InlineData("DAL", "/images/logos/nfl/dal.svg")]
+    [InlineData("GB", "/images/logos/nfl/gb.svg")]
     public void TeamLogo_RendersCorrectly_ForVariousTeams(string teamName, string expectedUrl)
     {
         // Arrange

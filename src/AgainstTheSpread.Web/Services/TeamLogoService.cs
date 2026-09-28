@@ -10,7 +10,7 @@ public class TeamLogoService : ITeamLogoService
     private readonly ILogger<TeamLogoService> _logger;
     private readonly HttpClient _httpClient;
     private readonly Dictionary<string, string> _teamLogoMapping;
-    private const string LogoBasePath = "/images/logos/ncaa/";
+    private const string LogoBasePath = "/images/logos/nfl/";
     private bool _isInitialized = false;
     private Task? _initializationTask;
 
@@ -90,7 +90,7 @@ public class TeamLogoService : ITeamLogoService
         // Try exact match first (case-insensitive)
         if (_teamLogoMapping.TryGetValue(teamName, out var logoId))
         {
-            return $"{LogoBasePath}{logoId}.png";
+            return $"{LogoBasePath}{logoId}.svg";
         }
 
         // Try to find a partial match
@@ -100,7 +100,7 @@ public class TeamLogoService : ITeamLogoService
 
         if (partialMatch != null && _teamLogoMapping.TryGetValue(partialMatch, out logoId))
         {
-            return $"{LogoBasePath}{logoId}.png";
+            return $"{LogoBasePath}{logoId}.svg";
         }
 
         return null;

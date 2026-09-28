@@ -8,7 +8,7 @@ using System.Net;
 namespace AgainstTheSpread.Functions;
 
 /// <summary>
-/// Azure Function for uploading weekly game lines.
+/// Commissioner workbook fallback for correcting official scoring lines.
 /// </summary>
 public class UploadLinesFunction
 {

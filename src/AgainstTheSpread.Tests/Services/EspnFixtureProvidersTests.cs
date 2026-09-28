@@ -15,6 +15,8 @@ public sealed class EspnFixtureProvidersTests
         games.Single(x => x.Id == "401872963").Should().BeEquivalentTo(
             new AgainstTheSpread.Core.Models.WeeklyGame("401872963", 3, "PHI", "CHI", 3.5m, null));
         games.Single(x => x.Id == "401872952").UnderdogTeamId.Should().Be("MIA");
+        games.Single(x => x.Id == "401872960").Should().Match<AgainstTheSpread.Core.Models.WeeklyGame>(
+            game => game.FavoriteTeamId != game.UnderdogTeamId); // BAL VS DAL neutral-site fixture
     }
 
     [Fact]

@@ -23,7 +23,7 @@ public sealed class EspnFixtureLinesProvider : ILinesProvider
             var away = odds.GetProperty("awayTeamOdds");
             var home = odds.GetProperty("homeTeamOdds");
             var matchup = game.GetProperty("shortName").GetString()!;
-            var teams = matchup.Split(new[] { " @ ", " vs " }, StringSplitOptions.None);
+            var teams = matchup.Split(new[] { " @ ", " vs ", " VS " }, StringSplitOptions.None);
             if (teams.Length != 2) throw new FormatException($"Unsupported ESPN matchup: {matchup}");
             // ESPN labels neutral games "vs". The listed order remains away then home and
             // is used only to identify the side of the spread, never to infer the favourite.

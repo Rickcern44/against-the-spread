@@ -100,6 +100,13 @@ code {
         content: var(--blazor-load-percentage-text, "Loading");
     }
 
+.gate-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
 /* ---- Shared page system --------------------------------------------- */
 
 .page-eyebrow {

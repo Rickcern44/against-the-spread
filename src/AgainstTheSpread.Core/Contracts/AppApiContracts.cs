@@ -6,6 +6,7 @@ namespace AgainstTheSpread.Core.Contracts;
 public static class AppApiRoutes
 {
     public const string Standings = "/api/standings";
+    public const string SeasonRoster = "/api/roster";
     public static string WeekGames(int week) => $"/api/weeks/{week}/games";
     public static string WeekPicks(int week) => $"/api/weeks/{week}/picks";
     public static string WeekRecommendation(int week) => $"/api/weeks/{week}/recommendation";
@@ -22,7 +23,7 @@ public sealed record ApiResponse<T>(T? Data, ApiProblem? Problem)
 
 public sealed record ApiProblem(ApiProblemCode Code, string Message, bool IsRetryable = false);
 
-public enum ApiProblemCode { WeekNotPulled, ProviderUnavailable, NoPicksLogged, SeasonNotStarted }
+public enum ApiProblemCode { WeekNotPulled, ProviderUnavailable, NoPicksLogged, SeasonNotStarted, RosterNotSet }
 
 /// <summary>GET /api/weeks/{week}/games. Team IDs are canonical ESPN team IDs.</summary>
 public sealed record WeekGamesResponse(int Week, IReadOnlyList<WeeklyGame> Games, IReadOnlyList<Team> Teams);
@@ -68,3 +69,10 @@ public sealed record PostWeekDataRequest(DataPullKind? Pull = null, OfficialLine
 
 /// <summary>Manual commissioner-line write. Positive points are laid by the favorite.</summary>
 public sealed record OfficialLineOverrideRequest(string GameId, decimal OfficialLine);
+
+/// <summary>GET /api/roster. Returns the current season's drafted nine-team roster, or an
+/// <see cref="ApiProblemCode.RosterNotSet"/> problem if the user has not drafted one yet.</summary>
+public sealed record SeasonRosterResponse(int Season, IReadOnlyList<Team> Teams);
+
+/// <summary>PUT /api/roster. Must supply exactly <see cref="Models.SeasonRoster.RequiredTeamCount"/> unique team ids.</summary>
+public sealed record SaveSeasonRosterRequest(IReadOnlyList<string> TeamIds);

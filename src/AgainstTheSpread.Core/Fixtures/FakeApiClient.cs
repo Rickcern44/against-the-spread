@@ -7,6 +7,12 @@ namespace AgainstTheSpread.Core.Fixtures;
 /// <summary>Deterministic full-week fixture for Web development and bUnit tests; never makes HTTP calls.</summary>
 public sealed class FakeApiClient : IAppApiClient
 {
+    private const int CurrentSeason = 2026;
+
+    // Deliberately starts unset so the first-run onboarding gate has something to gate on
+    // in dev/tests; a real deployment starts the same way until a roster is saved.
+    private SeasonRosterResponse? roster;
+
     private static readonly IReadOnlyList<WeeklyGame> WeekOneGames = new[]
     {
         new WeeklyGame("2026-01-DAL-PHI", 1, "21", "6", 6.5m, 7m, new GameResult(27, 20)),
@@ -54,6 +60,25 @@ public sealed class FakeApiClient : IAppApiClient
             : NotPulled<WeekDataStatusResponse>(week));
     public Task<ApiResponse<WeekDataStatusResponse>> PostWeekDataAsync(int week, PostWeekDataRequest request, CancellationToken cancellationToken = default) =>
         Task.FromResult(week == 1 ? ApiResponse<WeekDataStatusResponse>.Success(WeekOneData) : NotPulled<WeekDataStatusResponse>(week));
+
+    public Task<ApiResponse<SeasonRosterResponse>> GetSeasonRosterAsync(CancellationToken cancellationToken = default) =>
+        Task.FromResult(roster is not null
+            ? ApiResponse<SeasonRosterResponse>.Success(roster)
+            : ApiResponse<SeasonRosterResponse>.Failure(new(ApiProblemCode.RosterNotSet, "No season roster has been drafted yet.")));
+
+    public Task<ApiResponse<SeasonRosterResponse>> SaveSeasonRosterAsync(SaveSeasonRosterRequest request, CancellationToken cancellationToken = default)
+    {
+        if (request.TeamIds is null || request.TeamIds.Distinct(StringComparer.OrdinalIgnoreCase).Count() != SeasonRoster.RequiredTeamCount)
+        {
+            throw new ArgumentException($"A season roster must contain exactly {SeasonRoster.RequiredTeamCount} unique teams.", nameof(request));
+        }
+
+        var teams = request.TeamIds
+            .Select(id => NflTeamDirectory.AllTeams.Single(t => string.Equals(t.Id, id, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+        roster = new SeasonRosterResponse(CurrentSeason, teams);
+        return Task.FromResult(ApiResponse<SeasonRosterResponse>.Success(roster));
+    }
 
     private static ApiResponse<T> NotPulled<T>(int week) => ApiResponse<T>.Failure(new(ApiProblemCode.WeekNotPulled, $"Week {week} has not been pulled."));
 }

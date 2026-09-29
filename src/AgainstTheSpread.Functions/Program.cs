@@ -35,8 +35,10 @@ builder.Services.AddSingleton<IExcelService, ExcelService>();
 builder.Services.AddSingleton<IBowlExcelService, BowlExcelService>();
 builder.Services.AddSingleton<IGoogleIdTokenValidator, GoogleIdTokenValidator>();
 builder.Services.AddSingleton<IAdminAuthorizationService, AdminAuthorizationService>();
-builder.Services.AddHttpClient<EspnLiveLinesProvider>();
-builder.Services.AddHttpClient<EspnLiveResultsProvider>();
+// ESPN's public scoreboard/summary endpoints return 403 for any request with no User-Agent header.
+static void ConfigureEspnClient(HttpClient client) => client.DefaultRequestHeaders.UserAgent.ParseAdd("AgainstTheSpread/1.0 (+https://github.com/Rickcern44/against-the-spread)");
+builder.Services.AddHttpClient<EspnLiveLinesProvider>(ConfigureEspnClient);
+builder.Services.AddHttpClient<EspnLiveResultsProvider>(ConfigureEspnClient);
 builder.Services.AddSingleton<ILinesProvider>(sp => sp.GetRequiredService<EspnLiveLinesProvider>());
 builder.Services.AddSingleton<IResultsProvider>(sp => sp.GetRequiredService<EspnLiveResultsProvider>());
 builder.Services.AddSingleton<IStorageService>(sp =>
@@ -51,5 +53,8 @@ builder.Services.AddSingleton<IStorageService>(sp =>
     return new StorageService(connectionString, excelService, bowlExcelService, logger);
 });
 builder.Services.AddSingleton<WeeklyIngestionService>();
+builder.Services.AddSingleton<IScoringService, ScoringService>();
+builder.Services.AddSingleton<IStarterRecommendationService, StarterRecommendationService>();
+builder.Services.AddSingleton<IDogRecommendationService, DogRecommendationService>();
 
 builder.Build().Run();

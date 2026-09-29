@@ -96,6 +96,16 @@ If you prefer to install tools manually:
 
 See [CONSOLIDATION_RUNBOOK.md](docs/deprecated/CONSOLIDATION_RUNBOOK.md) for the authoritative production resource identities, backup, deployment, E2E, rollback, and retirement gates.
 
+#### Functions local settings
+
+`src/AgainstTheSpread.Functions/local.settings.json` is gitignored and not created for you.
+Copy `local.settings.json.example` in the same folder to `local.settings.json` before running
+`func start` (directly or via `task start-local`/`task start-e2e`). It documents the minimum
+values the isolated-worker host needs to bind without crashing, including placeholder
+`WeeklyLinesSchedule`/`WeeklyResultsSchedule` NCRONTAB expressions for the timer-triggered
+ingestion functions in `WeeklyIngestionFunctions.cs` — adjust the placeholders to your actual
+desired pull cadence.
+
 ### Local development and E2E
 
 The supported local integration path starts Azurite, Functions, Blazor, and the SWA proxy:

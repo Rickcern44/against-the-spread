@@ -20,7 +20,10 @@ public class StorageService : IStorageService
     private const string ContainerName = "gamefiles";
     private const string LinesFolder = "lines";
     private const string BowlLinesFolder = "bowl-lines";
-    private static readonly JsonSerializerOptions SeasonJson = new() { WriteIndented = true, PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions SeasonJson = new(new JsonSerializerOptions { WriteIndented = true, PropertyNameCaseInsensitive = true })
+    {
+        Converters = { new SeasonRosterJsonConverter(), new WeeklyPickJsonConverter() }
+    };
 
     public StorageService(string connectionString, IExcelService excelService, ILogger<StorageService> logger)
         : this(connectionString, excelService, null, logger)

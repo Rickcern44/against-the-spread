@@ -25,17 +25,20 @@ public sealed class EspnLiveLinesProvider : ILinesProvider
         foreach (var game in EspnScoreboard.Events(document.RootElement))
         {
             var (home, away) = EspnScoreboard.Teams(game);
-            var details = game.GetProperty("competitions")[0].GetProperty("odds")[0].GetProperty("details").GetString();
+            var gameId = game.GetProperty("id").GetString()!;
+            // The batch scoreboard response never embeds odds; ESPN only surfaces the
+            // pregame spread through the per-event summary endpoint's pickcenter feed.
+            var details = await EspnScoreboard.GetSpreadDetailsAsync(_http, gameId, cancellationToken);
             var match = details is null ? null : Spread.Match(details);
             if (match is null or { Success: false } || !decimal.TryParse(match.Groups["line"].Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var line))
-                throw new InvalidOperationException($"ESPN did not supply a usable point spread for game {game.GetProperty("id").GetString()}.");
+                throw new InvalidOperationException($"ESPN did not supply a usable point spread for game {gameId}.");
 
             var favorite = match.Groups["team"].Value.ToUpperInvariant();
             if (!string.Equals(favorite, home.Id, StringComparison.OrdinalIgnoreCase) && !string.Equals(favorite, away.Id, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException($"ESPN spread favorite {favorite} does not match the game teams.");
 
             var underdog = string.Equals(favorite, home.Id, StringComparison.OrdinalIgnoreCase) ? away.Id : home.Id;
-            games.Add(new WeeklyGame(game.GetProperty("id").GetString()!, week, favorite, underdog, Math.Abs(line), null));
+            games.Add(new WeeklyGame(gameId, week, favorite, underdog, Math.Abs(line), null));
         }
         return games;
     }
@@ -64,12 +67,25 @@ public sealed class EspnLiveResultsProvider : IResultsProvider
 internal static class EspnScoreboard
 {
     private const string BaseUrl = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
+    private const string SummaryUrl = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary";
 
     public static async Task<JsonDocument> GetAsync(HttpClient http, int season, int week, CancellationToken cancellationToken)
     {
         var url = $"{BaseUrl}?limit=100&dates={season}&seasontype=2&week={week}";
         return await http.GetFromJsonAsync<JsonDocument>(url, cancellationToken)
             ?? throw new InvalidOperationException("ESPN returned an empty scoreboard response.");
+    }
+
+    /// <summary>The current favorite/line (e.g. "PHI -3.5"), or null once ESPN stops carrying
+    /// odds for a game (typically once its season archives).</summary>
+    public static async Task<string?> GetSpreadDetailsAsync(HttpClient http, string eventId, CancellationToken cancellationToken)
+    {
+        var url = $"{SummaryUrl}?event={eventId}";
+        using var document = await http.GetFromJsonAsync<JsonDocument>(url, cancellationToken)
+            ?? throw new InvalidOperationException($"ESPN returned an empty summary response for game {eventId}.");
+        if (!document.RootElement.TryGetProperty("pickcenter", out var pickcenter) || pickcenter.GetArrayLength() == 0)
+            return null;
+        return pickcenter[0].GetProperty("details").GetString();
     }
 
     public static IEnumerable<JsonElement> Events(JsonElement root) => root.GetProperty("events").EnumerateArray();

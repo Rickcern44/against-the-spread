@@ -1,0 +1,13 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "NFL_SEASON": "2026",
+    "NFL_WEEK": "3",
+    "WeeklyLinesSchedule": "0 0 8 * * 1",
+    "WeeklyResultsSchedule": "0 0 8 * * 1,2",
+    "ADMIN_EMAILS": "",
+    "GOOGLE_CLIENT_ID": ""
+  }
+}

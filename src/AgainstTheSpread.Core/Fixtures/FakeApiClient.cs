@@ -13,26 +13,26 @@ public sealed class FakeApiClient : IAppApiClient
     // in dev/tests; a real deployment starts the same way until a roster is saved.
     private SeasonRosterResponse? roster;
 
+    // Team ids match NflTeamDirectory's canonical ESPN abbreviations so a saved roster (built
+    // from NflTeamDirectory) and this week's slate line up, the same way real ESPN-sourced data
+    // would. Kickoffs: DAL-PHI and KC-LAC are already final (past); BUF-BAL kicks off right at
+    // the Sunday 1:00 PM ET starter deadline; DET-GB is a Monday-night game that kicks off well
+    // after the starter deadline, so its dog pick stays open for its own, later, deadline.
     private static readonly IReadOnlyList<WeeklyGame> WeekOneGames = new[]
     {
-        new WeeklyGame("2026-01-DAL-PHI", 1, "21", "6", 6.5m, 7m, new GameResult(27, 20)),
-        new WeeklyGame("2026-01-KC-LAC", 1, "12", "24", 3.5m, null, new GameResult(24, 21)),
-        new WeeklyGame("2026-01-BUF-BAL", 1, "2", "33", 2.5m, 2.5m),
-        new WeeklyGame("2026-01-DET-GB", 1, "8", "9", 1.5m, 1m)
+        new WeeklyGame("2026-01-DAL-PHI", 1, "PHI", "DAL", 6.5m, 7m, new GameResult(27, 20), new DateTimeOffset(2026, 9, 10, 20, 20, 0, TimeSpan.FromHours(-4))),
+        new WeeklyGame("2026-01-KC-LAC", 1, "KC", "LAC", 3.5m, null, new GameResult(24, 21), new DateTimeOffset(2026, 9, 11, 20, 0, 0, TimeSpan.FromHours(-4))),
+        new WeeklyGame("2026-01-BUF-BAL", 1, "BUF", "BAL", 2.5m, 2.5m, Kickoff: new DateTimeOffset(2026, 9, 13, 13, 0, 0, TimeSpan.FromHours(-4))),
+        new WeeklyGame("2026-01-DET-GB", 1, "DET", "GB", 1.5m, 1m, Kickoff: new DateTimeOffset(2026, 9, 14, 20, 15, 0, TimeSpan.FromHours(-4)))
     };
 
-    private static readonly IReadOnlyList<Team> WeekOneTeams = new[]
-    {
-        new Team("21", "Philadelphia Eagles", 1, 9), new Team("6", "Dallas Cowboys", 2, 10),
-        new Team("12", "Kansas City Chiefs", 1, 10), new Team("24", "Los Angeles Chargers", 2, 5),
-        new Team("2", "Buffalo Bills", 2, 7), new Team("33", "Baltimore Ravens", 2, 13),
-        new Team("8", "Detroit Lions", 2, 8), new Team("9", "Green Bay Packers", 3, 5)
-    };
+    private static readonly IReadOnlyList<Team> WeekOneTeams = new[] { "PHI", "DAL", "KC", "LAC", "BUF", "BAL", "DET", "GB" }
+        .Select(id => NflTeamDirectory.AllTeams.Single(t => t.Id == id)).ToList();
 
-    private static readonly WeeklyPick WeekOnePick = new(1, new[] { "21", "12", "2" }, new[] { new DogPick("2026-01-DAL-PHI", "6") });
+    private static readonly WeeklyPick WeekOnePick = new(1, new[] { "PHI", "KC", "BUF" }, new[] { new DogPick("2026-01-DAL-PHI", "DAL") });
     private static readonly WeekRecommendationResponse WeekOneRecommendation = new(1,
-        new[] { new RankedRecommendation("21", "2026-01-DAL-PHI", .70m, 2.80m, 1), new RankedRecommendation("12", "2026-01-KC-LAC", .60m, 1.80m, 2), new RankedRecommendation("2", "2026-01-BUF-BAL", .57m, 1.14m, 3) },
-        new[] { new RankedRecommendation("6", "2026-01-DAL-PHI", .30m, 2.10m, 1), new RankedRecommendation("24", "2026-01-KC-LAC", .40m, 1.40m, 2), new RankedRecommendation("33", "2026-01-BUF-BAL", .43m, 1.08m, 3) });
+        new[] { new RankedRecommendation("PHI", "2026-01-DAL-PHI", .70m, 2.80m, 1), new RankedRecommendation("KC", "2026-01-KC-LAC", .60m, 1.80m, 2), new RankedRecommendation("BUF", "2026-01-BUF-BAL", .57m, 1.14m, 3) },
+        new[] { new RankedRecommendation("DAL", "2026-01-DAL-PHI", .30m, 2.10m, 1), new RankedRecommendation("LAC", "2026-01-KC-LAC", .40m, 1.40m, 2), new RankedRecommendation("BAL", "2026-01-BUF-BAL", .43m, 1.08m, 3) });
 
     private static readonly WeekDataStatusResponse WeekOneData = new(1,
         new DataPullStatus(true, new DateTimeOffset(2026, 9, 8, 14, 0, 0, TimeSpan.Zero)),

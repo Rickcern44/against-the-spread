@@ -8,10 +8,15 @@ public sealed record WeeklyGame(
     string UnderdogTeamId,
     decimal? ApiLine,
     decimal? OfficialLine,
-    GameResult? Result = null)
+    GameResult? Result = null,
+    DateTimeOffset? Kickoff = null)
 {
     public decimal? ScoringLine => OfficialLine ?? ApiLine;
     public bool IsOfficialLineConfirmed => OfficialLine.HasValue;
+
+    /// <summary>True once this specific game has kicked off, per the league's dog-pick deadline
+    /// (each dog closes at its own kickoff). Unknown kickoff times are treated as not yet locked.</summary>
+    public bool HasKickedOff(DateTimeOffset now) => Kickoff.HasValue && now >= Kickoff.Value;
 
     public decimal DogSpread(string teamId)
     {

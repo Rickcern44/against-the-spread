@@ -3,12 +3,13 @@
 @using AgainstTheSpread.Core.Interfaces
 @using AgainstTheSpread.Core.Models
 @inject IAppApiClient Api
+@inject TimeProvider Clock
 
-<PageTitle>Weekly picks</PageTitle>
+<PageTitle>This week</PageTitle>
 
-<div class="page-eyebrow">Game plan</div>
-<h1 class="page-heading">Weekly picks</h1>
-<p class="page-subtitle">Ranked recommendations are guidance. Log your actual three starters and one dog below.</p>
+<div class="page-eyebrow">Personal record</div>
+<h1 class="page-heading">This week</h1>
+<p class="page-subtitle">Your own log of starters and dog picks. Submit picks separately in the commissioner's Google Form.</p>
 
 <MudPaper Class="surface-panel mb-5" Elevation="0">
     <MudSelect T="int" Value="week" ValueChanged="OnWeekChanged" Label="Week" Variant="Variant.Outlined" Dense="true" Class="week-select">
@@ -22,7 +23,7 @@
 
 @if (loading)
 {
-    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Loading week data" />
 }
 else if (problem is not null)
 {
@@ -30,63 +31,195 @@ else if (problem is not null)
         @problem <MudButton Variant="Variant.Text" Color="Color.Inherit" OnClick="LoadAsync" Class="ml-2">Retry</MudButton>
     </MudAlert>
 }
-else if (games is not null && recommendation is not null)
+else if (roster is null)
 {
-    <h2 class="section-heading mb-3">This week's ranked recommendation</h2>
-    <div class="recommendation-grid mb-6">
-        @for (var index = 0; index < recommendation.Starters.Count; index++)
+    <MudAlert Severity="Severity.Warning">Draft your season roster before logging picks.</MudAlert>
+}
+else if (games is null)
+{
+    <MudAlert Severity="Severity.Info">Week @week has not been pulled yet. Try again once this week's slate is available.</MudAlert>
+}
+else
+{
+    <MudPaper Class="surface-panel mb-5" Elevation="0" role="status" aria-live="polite">
+        <div class="deadline-row">
+            <div>
+                <span class="deadline-label">Starters close</span>
+                <span class="deadline-value mono">@FormatEt(starterDeadline) @(startersLocked ? "— locked" : "")</span>
+            </div>
+            <div>
+                <span class="deadline-label">Dogs close</span>
+                <span class="deadline-value mono">at each game's own kickoff</span>
+            </div>
+        </div>
+        <div class="progress-row">
+            <a href="#starters-section" class="progress-chip @(draftStarters.Count(s => s is not null) == 3 ? "progress-complete" : "")">
+                @draftStarters.Count(s => s is not null) of 3 starters
+            </a>
+            <a href="#dogs-section" class="progress-chip @(draftDogs.Count == dogAllowance ? "progress-complete" : "")">
+                @draftDogs.Count of @dogAllowance dog@(dogAllowance == 1 ? "" : "s")
+            </a>
+        </div>
+        @if (startersLocked && !correctionMode)
         {
-            var starter = recommendation.Starters[index];
-            var dog = recommendation.Dogs.ElementAtOrDefault(index);
-            var team = Team(starter.TeamId);
-            <div class="recommendation-card">
-                <span class="recommendation-rank">#@starter.Rank</span>
-                <div class="recommendation-body">
-                    <div class="recommendation-team">
-                        @TeamName(starter.TeamId)
-                        <span class="tier-chip"><span class="tier-dot" style="background:@team.TierColorHex"></span>@team.PointValue pt</span>
+            <MudAlert Severity="Severity.Info" Class="mt-3" Icon="@Icons.Material.Filled.Lock">
+                The starter deadline has passed. Your saved starters are shown for reference.
+                <MudButton Variant="Variant.Text" Color="Color.Inherit" OnClick="() => correctionMode = true" Class="ml-2">Correct my record</MudButton>
+            </MudAlert>
+        }
+        else if (correctionMode)
+        {
+            <MudAlert Severity="Severity.Warning" Class="mt-3">
+                You are editing a personal correction. This never changes what was submitted to the commissioner.
+            </MudAlert>
+        }
+    </MudPaper>
+
+    <h2 id="starters-section" class="section-heading mb-3">Starters <span class="section-hint">— from your 9-team roster only</span></h2>
+    <div class="picker-list mb-6">
+        @foreach (var team in rosterWeekRows)
+        {
+            var selected = draftStarters.Contains(team.Team.Id);
+            var disabled = team.OnBye || (startersLocked && !correctionMode);
+            <div class="picker-row @(selected ? "picker-row-selected" : "")">
+                <div class="picker-row-main">
+                    <span class="tier-chip"><span class="tier-dot" style="background:@team.Team.TierColorHex"></span>@team.Team.PointValue pt</span>
+                    <div class="picker-row-body">
+                        <span class="picker-row-team">@team.Team.DisplayName</span>
+                        <span class="picker-row-meta mono">
+                            @if (team.OnBye)
+                            {
+                                <text>Bye week</text>
+                            }
+                            else if (team.Game is not null)
+                            {
+                                <text>vs @TeamName(team.Opponent!) · @FormatEt(team.Game.Kickoff)</text>
+                            }
+                            else
+                            {
+                                <text>No game this week</text>
+                            }
+                        </span>
                     </div>
-                    <div class="recommendation-meta mono">@starter.WinProbability.ToString("P0") win · Dog: @(dog is null ? "—" : TeamName(dog.TeamId))</div>
                 </div>
-                <div class="recommendation-ev">
-                    <span class="ev-label">EV</span>
-                    <span class="ev-value mono">@starter.ExpectedValue.ToString("0.00")</span>
-                </div>
+                <MudButton Variant="@(selected ? Variant.Filled : Variant.Outlined)" Color="@(selected ? Color.Primary : Color.Default)"
+                           Disabled="@disabled" OnClick="() => ToggleStarter(team.Team.Id)"
+                           aria-pressed="@selected.ToString().ToLowerInvariant()">
+                    @(selected ? "Selected — remove" : disabled ? (team.OnBye ? "Bye" : "Locked") : "Select starter")
+                </MudButton>
             </div>
         }
     </div>
 
-    <MudPaper Class="surface-panel" Elevation="0">
-        <h2 class="section-heading mb-3">Your actual picks</h2>
-        <MudGrid>
-            @for (var index = 0; index < 3; index++)
+    @if (pendingReplacementTeamId is not null)
+    {
+        <MudAlert Severity="Severity.Info" Class="mb-4">
+            You already have three starters. Choose one to replace with @TeamName(pendingReplacementTeamId):
+            @foreach (var current in draftStarters.Where(s => s is not null))
             {
-                var selectionIndex = index;
-                <MudItem xs="12" sm="4">
-                    <MudSelect T="string" Value="@starters[selectionIndex]" ValueChanged="@(value => SetStarter(selectionIndex, value))"
-                               Label="@($"Starter {selectionIndex + 1}")" Variant="Variant.Outlined" Dense="true">
-                        @foreach (var team in games.Teams)
-                        {
-                            <MudSelectItem Value="@team.Id">@team.DisplayName</MudSelectItem>
-                        }
-                    </MudSelect>
-                </MudItem>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="() => ConfirmReplace(current!)" Class="ml-2">@TeamName(current!)</MudButton>
             }
-            <MudItem xs="12" sm="4">
-                <MudSelect T="string" @bind-Value="dogTeamId" Label="Dog" Variant="Variant.Outlined" Dense="true">
-                    @foreach (var game in games.Games)
-                    {
-                        <MudSelectItem Value="@game.UnderdogTeamId">@TeamName(game.UnderdogTeamId)</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-        </MudGrid>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="@saving" Class="mt-4">
-            @(saving ? "Saving…" : "Save picks")
+            <MudButton Variant="Variant.Text" Color="Color.Inherit" OnClick="() => pendingReplacementTeamId = null" Class="ml-2">Cancel</MudButton>
+        </MudAlert>
+    }
+
+    <h2 id="dogs-section" class="section-heading mb-1">Dog picks <span class="section-hint">— full eligible slate</span></h2>
+    <div class="dog-allowance-row mb-3">
+        <label for="dog-allowance">Declared dog allowance this week</label>
+        <MudNumericField @bind-Value="dogAllowance" Min="1" Max="9" Variant="Variant.Outlined" Class="dog-allowance-field" Immediate="true" />
+    </div>
+    @if (dogAllowanceMessage is not null)
+    {
+        <MudAlert Severity="Severity.Info" Class="mb-3">@dogAllowanceMessage</MudAlert>
+    }
+    <div class="picker-list mb-6">
+        @foreach (var game in games.Games)
+        {
+            var dogTeamId = game.UnderdogTeamId;
+            var selected = draftDogs.Any(d => d.GameId == game.Id);
+            var gameLocked = game.HasKickedOff(now) && !correctionMode;
+            var assumedLine = !game.IsOfficialLineConfirmed;
+            <div class="picker-row @(selected ? "picker-row-selected" : "")">
+                <div class="picker-row-main">
+                    <div class="picker-row-body">
+                        <span class="picker-row-team">@TeamName(dogTeamId) <span class="mono">+@game.ScoringLine?.ToString("0.#")</span></span>
+                        <span class="picker-row-meta mono">
+                            vs @TeamName(game.FavoriteTeamId) · @FormatEt(game.Kickoff)
+                            @if (assumedLine)
+                            {
+                                <span class="assumed-line-badge">Assumed line</span>
+                            }
+                            @if (weekData is not null)
+                            {
+                                <text> · captured @FormatEt(weekData.Lines.CompletedAt)</text>
+                            }
+                        </span>
+                    </div>
+                </div>
+                <MudButton Variant="@(selected ? Variant.Filled : Variant.Outlined)" Color="@(selected ? Color.Primary : Color.Default)"
+                           Disabled="@(gameLocked && !selected)" OnClick="() => ToggleDog(game.Id, dogTeamId)"
+                           aria-pressed="@selected.ToString().ToLowerInvariant()">
+                    @(selected ? "Selected — remove" : gameLocked ? "Locked" : "Select dog")
+                </MudButton>
+            </div>
+        }
+    </div>
+
+    @if (recommendation is not null)
+    {
+        <details class="recommendation-disclosure mb-6">
+            <summary>Optional: show ranked recommendations</summary>
+            <div class="recommendation-grid mt-3">
+                @for (var index = 0; index < recommendation.Starters.Count; index++)
+                {
+                    var starter = recommendation.Starters[index];
+                    var dog = recommendation.Dogs.ElementAtOrDefault(index);
+                    var team = TeamOrFallback(starter.TeamId);
+                    <div class="recommendation-card">
+                        <span class="recommendation-rank">#@starter.Rank</span>
+                        <div class="recommendation-body">
+                            <div class="recommendation-team">
+                                @TeamName(starter.TeamId)
+                                <span class="tier-chip"><span class="tier-dot" style="background:@team.TierColorHex"></span>@team.PointValue pt</span>
+                            </div>
+                            <div class="recommendation-meta mono">@starter.WinProbability.ToString("P0") win · Dog: @(dog is null ? "—" : TeamName(dog.TeamId))</div>
+                        </div>
+                        <div class="recommendation-ev">
+                            <span class="ev-label">EV</span>
+                            <span class="ev-value mono">@starter.ExpectedValue.ToString("0.00")</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </details>
+    }
+
+    <MudPaper Class="surface-panel" Elevation="0">
+        <h2 class="section-heading mb-3">Review</h2>
+        <ul class="review-list">
+            @for (var i = 0; i < 3; i++)
+            {
+                var value = draftStarters.ElementAtOrDefault(i);
+                <li>@(value is null ? "— missing starter —" : TeamName(value))</li>
+            }
+            @for (var i = 0; i < dogAllowance; i++)
+            {
+                var value = draftDogs.ElementAtOrDefault(i);
+                <li>@(value is null ? "— missing dog —" : TeamName(value.TeamId))</li>
+            }
+        </ul>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="@(saving || !CanSave)" Class="mt-2">
+            @(saving ? "Saving…" : "Save my record")
         </MudButton>
         @if (saveMessage is not null)
         {
-            <MudAlert Severity="Severity.Success" Class="mt-3">@saveMessage</MudAlert>
+            <MudAlert Severity="@(saveFailed ? Severity.Error : Severity.Success)" Class="mt-3">
+                @saveMessage
+                @if (saveFailed)
+                {
+                    <MudButton Variant="Variant.Text" Color="Color.Inherit" OnClick="SaveAsync" Class="ml-2">Retry</MudButton>
+                }
+            </MudAlert>
         }
     </MudPaper>
 
@@ -101,12 +234,25 @@ else if (games is not null && recommendation is not null)
 
 @code {
     private int week = 1;
-    private bool loading = true, saving;
-    private string? problem, saveMessage, dogTeamId;
-    private readonly string?[] starters = new string?[3];
+    private bool loading = true, saving, saveFailed, correctionMode;
+    private string? problem, saveMessage;
+    private string?[] draftStarters = new string?[3];
+    private List<DogPick> draftDogs = new();
+    private int dogAllowance = 1;
+    private string? pendingReplacementTeamId, dogAllowanceMessage;
     private WeekGamesResponse? games;
+    private SeasonRosterResponse? roster;
     private WeekRecommendationResponse? recommendation;
+    private WeekDataStatusResponse? weekData;
     private WeeklyScore? score;
+    private DateTimeOffset now;
+    private DateTimeOffset? starterDeadline;
+    private bool startersLocked;
+    private List<RosterWeekRow> rosterWeekRows = new();
+
+    private bool CanSave => draftStarters.Count(s => s is not null) == 3
+        && draftStarters.Where(s => s is not null).Distinct(StringComparer.OrdinalIgnoreCase).Count() == 3
+        && draftDogs.Count == dogAllowance;
 
     protected override Task OnInitializedAsync() => LoadAsync();
 
@@ -114,46 +260,133 @@ else if (games is not null && recommendation is not null)
 
     private async Task LoadAsync()
     {
-        loading = true; problem = null; saveMessage = null; games = null; recommendation = null; score = null;
+        loading = true; problem = null; saveMessage = null; saveFailed = false; correctionMode = false;
+        pendingReplacementTeamId = null; games = null; recommendation = null; score = null; weekData = null;
+        draftStarters = new string?[3]; draftDogs = new(); dogAllowance = 1;
+        now = Clock.GetUtcNow();
+
+        var rosterResult = await Api.GetSeasonRosterAsync();
+        if (!rosterResult.Succeeded) { problem = rosterResult.Problem!.Message; loading = false; return; }
+        roster = rosterResult.Data;
+
         var gameResult = await Api.GetWeekGamesAsync(week);
-        var recommendationResult = await Api.GetWeekRecommendationAsync(week);
-        if (!gameResult.Succeeded) problem = gameResult.Problem!.Message;
-        else if (!recommendationResult.Succeeded) problem = recommendationResult.Problem!.Message;
-        else
+        if (!gameResult.Succeeded) { problem = gameResult.Problem!.Message; loading = false; return; }
+        games = gameResult.Data!;
+
+        starterDeadline = WeekDeadlines.StarterDeadline(games.Games);
+        startersLocked = WeekDeadlines.StartersLocked(games.Games, now);
+
+        rosterWeekRows = roster!.Teams.Select(team =>
         {
-            games = gameResult.Data!;
-            recommendation = recommendationResult.Data!;
-            var picks = await Api.GetWeekPicksAsync(week);
-            if (picks.Data is not null)
-            {
-                var pick = picks.Data.Pick;
-                for (var index = 0; index < 3; index++) starters[index] = pick.StarterTeamIds.ElementAtOrDefault(index);
-                dogTeamId = pick.DogPicks.SingleOrDefault()?.TeamId;
-            }
-            var standings = await Api.GetStandingsAsync();
-            score = standings.Data?.WeeklyHistory.SingleOrDefault(history => history.Week == week)?.Score;
+            var game = games.Games.FirstOrDefault(g => string.Equals(g.FavoriteTeamId, team.Id, StringComparison.OrdinalIgnoreCase) || string.Equals(g.UnderdogTeamId, team.Id, StringComparison.OrdinalIgnoreCase));
+            var opponent = game is null ? null : string.Equals(game.FavoriteTeamId, team.Id, StringComparison.OrdinalIgnoreCase) ? game.UnderdogTeamId : game.FavoriteTeamId;
+            return new RosterWeekRow(team, game, opponent, team.ByeWeek == week);
+        }).ToList();
+
+        var recommendationResult = await Api.GetWeekRecommendationAsync(week);
+        if (recommendationResult.Succeeded) recommendation = recommendationResult.Data;
+
+        var weekDataResult = await Api.GetWeekDataAsync(week);
+        if (weekDataResult.Succeeded) weekData = weekDataResult.Data;
+
+        var picks = await Api.GetWeekPicksAsync(week);
+        if (picks.Data is not null)
+        {
+            var pick = picks.Data.Pick;
+            for (var index = 0; index < 3; index++) draftStarters[index] = pick.StarterTeamIds.ElementAtOrDefault(index);
+            draftDogs = pick.DogPicks.ToList();
+            dogAllowance = pick.DogAllowance;
         }
+
+        var standings = await Api.GetStandingsAsync();
+        score = standings.Data?.WeeklyHistory.SingleOrDefault(history => history.Week == week)?.Score;
+
         loading = false;
     }
 
-    private void SetStarter(int index, string? value) => starters[index] = value;
+    private void ToggleStarter(string teamId)
+    {
+        if (startersLocked && !correctionMode) return;
+        if (draftStarters.Contains(teamId))
+        {
+            for (var i = 0; i < draftStarters.Length; i++) if (draftStarters[i] == teamId) draftStarters[i] = null;
+            pendingReplacementTeamId = null;
+            return;
+        }
+        var emptySlot = Array.IndexOf(draftStarters, null);
+        if (emptySlot >= 0) { draftStarters[emptySlot] = teamId; return; }
+        pendingReplacementTeamId = teamId;
+    }
+
+    private void ConfirmReplace(string replacedTeamId)
+    {
+        if (pendingReplacementTeamId is null) return;
+        for (var i = 0; i < draftStarters.Length; i++) if (draftStarters[i] == replacedTeamId) draftStarters[i] = pendingReplacementTeamId;
+        pendingReplacementTeamId = null;
+    }
+
+    private void ToggleDog(string gameId, string teamId)
+    {
+        if (games is null) return;
+        if (games.Games.SingleOrDefault(g => g.Id == gameId) is { } game && game.HasKickedOff(now) && !correctionMode) return;
+        var existing = draftDogs.FirstOrDefault(d => d.GameId == gameId);
+        if (existing is not null) { draftDogs.Remove(existing); return; }
+        if (draftDogs.Count >= dogAllowance)
+        {
+            dogAllowanceMessage = $"Dog allowance reached ({dogAllowance}). Remove one before adding another.";
+            return;
+        }
+        dogAllowanceMessage = null;
+        draftDogs.Add(new DogPick(gameId, teamId));
+    }
 
     private async Task SaveAsync()
     {
-        if (games is null || starters.Any(string.IsNullOrWhiteSpace) || starters.Distinct(StringComparer.OrdinalIgnoreCase).Count() != 3 || string.IsNullOrWhiteSpace(dogTeamId))
-        {
-            problem = "Choose three distinct starters and one dog before saving.";
-            return;
-        }
-        var dogGame = games.Games.SingleOrDefault(game => game.UnderdogTeamId == dogTeamId);
-        if (dogGame is null) { problem = "The dog must be an underdog in this week's games."; return; }
-        saving = true; problem = null;
-        var response = await Api.SaveWeekPicksAsync(week, new(new WeeklyPick(week, starters!, new[] { new DogPick(dogGame.Id, dogTeamId) })));
+        if (games is null || !CanSave) return;
+        saving = true; saveMessage = null; saveFailed = false;
+        var isCorrection = correctionMode || startersLocked;
+        var pick = new WeeklyPick(week, draftStarters.Where(s => s is not null)!, draftDogs, dogAllowance);
+        var response = await Api.SaveWeekPicksAsync(week, new(pick));
         saving = false;
-        if (!response.Succeeded) problem = response.Problem!.Message;
-        else saveMessage = "Your picks are saved.";
+        var savedAt = Clock.GetUtcNow();
+        if (!response.Succeeded)
+        {
+            saveFailed = true;
+            saveMessage = $"Not saved. {response.Problem!.Message}";
+        }
+        else
+        {
+            correctionMode = false;
+            saveMessage = isCorrection
+                ? $"Personal correction saved at {FormatEt(savedAt)} ET — does not change the commissioner's submission."
+                : $"Saved here as your personal record at {FormatEt(savedAt)} ET. Submit picks separately in the commissioner's Google Form.";
+
+            // A correction can change which teams covered, so refresh the running score the
+            // same way the initial load did rather than leaving the pre-correction total shown.
+            var standings = await Api.GetStandingsAsync();
+            score = standings.Data?.WeeklyHistory.SingleOrDefault(history => history.Week == week)?.Score;
+        }
     }
 
-    private string TeamName(string id) => Team(id).DisplayName;
-    private Team Team(string id) => games?.Teams.SingleOrDefault(team => team.Id == id) ?? new Team(id, id, 4, 1);
+    private string TeamName(string id) => TeamOrFallback(id).DisplayName;
+
+    private Team TeamOrFallback(string id) =>
+        games?.Teams.SingleOrDefault(t => t.Id == id)
+        ?? roster?.Teams.SingleOrDefault(t => t.Id == id)
+        ?? new Team(id, id, 4, 1);
+
+    private static string FormatEt(DateTimeOffset? value)
+    {
+        if (value is null) return "TBD";
+        var eastern = TimeZoneInfo.ConvertTime(value.Value, ResolveEastern());
+        return eastern.ToString("ddd M/d h:mm tt") + " ET";
+    }
+
+    private static TimeZoneInfo ResolveEastern()
+    {
+        try { return TimeZoneInfo.FindSystemTimeZoneById("America/New_York"); }
+        catch (TimeZoneNotFoundException) { return TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"); }
+    }
+
+    private sealed record RosterWeekRow(Team Team, WeeklyGame? Game, string? Opponent, bool OnBye);
 }

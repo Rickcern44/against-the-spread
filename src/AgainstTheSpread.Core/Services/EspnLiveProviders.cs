@@ -38,7 +38,8 @@ public sealed class EspnLiveLinesProvider : ILinesProvider
                 throw new InvalidOperationException($"ESPN spread favorite {favorite} does not match the game teams.");
 
             var underdog = string.Equals(favorite, home.Id, StringComparison.OrdinalIgnoreCase) ? away.Id : home.Id;
-            games.Add(new WeeklyGame(gameId, week, favorite, underdog, Math.Abs(line), null));
+            var kickoff = EspnScoreboard.Kickoff(game);
+            games.Add(new WeeklyGame(gameId, week, favorite, underdog, Math.Abs(line), null, Kickoff: kickoff));
         }
         return games;
     }
@@ -89,6 +90,13 @@ internal static class EspnScoreboard
     }
 
     public static IEnumerable<JsonElement> Events(JsonElement root) => root.GetProperty("events").EnumerateArray();
+
+    /// <summary>The scheduled kickoff, or null when ESPN omits the "date" field.</summary>
+    public static DateTimeOffset? Kickoff(JsonElement game) =>
+        game.TryGetProperty("date", out var date) && date.ValueKind == JsonValueKind.String
+        && DateTimeOffset.TryParse(date.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed)
+            ? parsed
+            : null;
 
     public static (ScoreboardTeam Home, ScoreboardTeam Away) Teams(JsonElement game)
     {

@@ -14,5 +14,6 @@ builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(apiBaseUr
 builder.Services.AddScoped<IAppApiClient, HttpAppApiClient>();
 builder.Services.AddMudServices();
 builder.Services.AddScoped<RosterState>();
+builder.Services.AddSingleton(TimeProvider.System);
 
 await builder.Build().RunAsync();

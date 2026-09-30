@@ -1,0 +1,32 @@
+@namespace AgainstTheSpread.Web.Components
+@using AgainstTheSpread.Web.Services
+@inject ITeamLogoService TeamLogoService
+
+@if (ShowLogo)
+{
+    <img src="@LogoUrl" alt="@TeamName logo" class="@CssClass" style="@Style" onerror="this.style.display='none';" />
+}
+
+@code {
+    /// <summary>
+    /// The name of the team to display the logo for
+    /// </summary>
+    [Parameter]
+    public string? TeamName { get; set; }
+
+    /// <summary>
+    /// CSS class to apply to the image element
+    /// </summary>
+    [Parameter]
+    public string CssClass { get; set; } = "team-logo";
+
+    /// <summary>
+    /// Inline style to apply to the image element
+    /// </summary>
+    [Parameter]
+    public string Style { get; set; } = "width: 24px; height: 24px; object-fit: contain; margin-right: 8px;";
+
+    private string? LogoUrl => TeamLogoService.GetLogoUrl(TeamName);
+
+    private bool ShowLogo => LogoUrl != null;
+}

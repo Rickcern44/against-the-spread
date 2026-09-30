@@ -33,18 +33,18 @@ npx playwright install chromium
 From the repository root:
 
 ```bash
-task start-e2e
+./start-e2e.sh
 cd tests
 npm exec -- tsc -p tsconfig.json --noEmit
 npm test
 cd ..
-task stop-e2e
+./stop-e2e.sh
 ```
 
-The stack uses ports 10000 (Azurite), 7071 (Functions), 5158 (Blazor), and 4280 (SWA proxy). Run it only where those listeners are owned by this checkout. `scripts/stop-e2e.sh` (`task stop-e2e`) uses process-name matching and is intended for an isolated local or CI runner.
+The stack uses ports 10000 (Azurite), 7071 (Functions), 5158 (Blazor), and 4280 (SWA proxy). Run it only where those listeners are owned by this checkout. `stop-e2e.sh` uses process-name matching and is intended for an isolated local or CI runner.
 
 ## Configuration
 
 Playwright uses `http://localhost:4280`, Chromium, one worker, failure screenshots/video, and first-retry traces. The fixture seeder accepts only the standard `UseDevelopmentStorage=true` Azurite connection string and fails closed for remote storage targets.
 
-Real release acceptance additionally requires production Google token validation, allowlist authorization, upload/readback safety, service-worker update checks, and a physical installed-iPhone share-sheet/Save-to-Files check. See `../docs/deprecated/CONSOLIDATION_RUNBOOK.md`.
+Real release acceptance additionally requires production Google token validation, allowlist authorization, upload/readback safety, service-worker update checks, and a physical installed-iPhone share-sheet/Save-to-Files check. See `../CONSOLIDATION_RUNBOOK.md`.

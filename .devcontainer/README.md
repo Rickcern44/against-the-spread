@@ -81,7 +81,7 @@ The setup script (`.devcontainer/setup.sh`) automatically:
 Use the provided helper script to start everything:
 
 ```bash
-task start-local
+./start-local.sh
 ```
 
 This starts:
@@ -94,7 +94,7 @@ Access the app at: **http://localhost:5158**
 ### Stop All Services
 
 ```bash
-task stop-local
+./stop-local.sh
 ```
 
 ### Manual Service Management
@@ -200,8 +200,8 @@ Or restart the dev container:
    ```bash
    dotnet clean
    dotnet build
-   task stop-local
-   task start-local
+   ./stop-local.sh
+   ./start-local.sh
    ```
 
 ### Azurite Issues
@@ -324,7 +324,7 @@ Edit `.devcontainer/devcontainer.json`:
 
 If you encounter issues:
 1. Check the [main README](../README.md)
-2. Review [TESTING.md](../docs/deprecated/TESTING.md) for test-specific help
+2. Review [TESTING.md](../TESTING.md) for test-specific help
 3. Open an issue on GitHub
 4. Check the troubleshooting section above
 

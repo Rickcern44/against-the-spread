@@ -1,60 +1,34 @@
 using AgainstTheSpread.Core.Interfaces;
 using AgainstTheSpread.Core.Services;
 using AgainstTheSpread.Functions.Authentication;
-using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Builder;
-using Microsoft.Azure.Functions.Worker.OpenTelemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-var builder = FunctionsApplication.CreateBuilder(args);
+var host = new HostBuilder()
+    .ConfigureFunctionsWebApplication()
+    .ConfigureServices(services =>
+    {
+        services.AddApplicationInsightsTelemetryWorkerService();
 
-// Aspire ServiceDefaults: OpenTelemetry (OTLP exporter to the local Aspire dashboard when
-// running under `aspire start`), service discovery, and resilient HttpClient defaults. Layers
-// onto - does not replace - the Azure Monitor exporter registered below.
-builder.AddServiceDefaults();
+        // Register application services
+        services.AddSingleton<IExcelService, ExcelService>();
+        services.AddSingleton<IBowlExcelService, BowlExcelService>();
+        services.AddSingleton<IGoogleIdTokenValidator, GoogleIdTokenValidator>();
+        services.AddSingleton<IAdminAuthorizationService, AdminAuthorizationService>();
+        services.AddSingleton<IStorageService>(sp =>
+        {
+            // Use AZURE_STORAGE_CONNECTION_STRING for custom storage, fallback to AzureWebJobsStorage for local dev
+            var connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING")
+                ?? Environment.GetEnvironmentVariable("AzureWebJobsStorage")
+                ?? "UseDevelopmentStorage=true";
+            var excelService = sp.GetRequiredService<IExcelService>();
+            var bowlExcelService = sp.GetRequiredService<IBowlExcelService>();
+            var logger = sp.GetRequiredService<ILogger<StorageService>>();
+            return new StorageService(connectionString, excelService, bowlExcelService, logger);
+        });
+    })
+    .Build();
 
-builder.ConfigureFunctionsWebApplication();
-
-var otelBuilder = builder.Services.AddOpenTelemetry()
-    .UseFunctionsWorkerDefaults();
-
-// UseAzureMonitorExporter() throws at startup if no connection string is configured -
-// there's no Application Insights resource wired into the local Aspire AppHost, so this
-// must stay opt-in via the same env var Azure sets when the Functions app is deployed.
-var appInsightsConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
-if (!string.IsNullOrEmpty(appInsightsConnectionString))
-{
-    otelBuilder.UseAzureMonitorExporter();
-}
-
-// Register application services
-builder.Services.AddSingleton<IExcelService, ExcelService>();
-builder.Services.AddSingleton<IBowlExcelService, BowlExcelService>();
-builder.Services.AddSingleton<IGoogleIdTokenValidator, GoogleIdTokenValidator>();
-builder.Services.AddSingleton<IAdminAuthorizationService, AdminAuthorizationService>();
-// ESPN's public scoreboard/summary endpoints return 403 for any request with no User-Agent header.
-static void ConfigureEspnClient(HttpClient client) => client.DefaultRequestHeaders.UserAgent.ParseAdd("AgainstTheSpread/1.0 (+https://github.com/Rickcern44/against-the-spread)");
-builder.Services.AddHttpClient<EspnLiveLinesProvider>(ConfigureEspnClient);
-builder.Services.AddHttpClient<EspnLiveResultsProvider>(ConfigureEspnClient);
-builder.Services.AddSingleton<ILinesProvider>(sp => sp.GetRequiredService<EspnLiveLinesProvider>());
-builder.Services.AddSingleton<IResultsProvider>(sp => sp.GetRequiredService<EspnLiveResultsProvider>());
-builder.Services.AddSingleton<IStorageService>(sp =>
-{
-    // Use AZURE_STORAGE_CONNECTION_STRING for custom storage, fallback to AzureWebJobsStorage for local dev
-    var connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING")
-        ?? Environment.GetEnvironmentVariable("AzureWebJobsStorage")
-        ?? "UseDevelopmentStorage=true";
-    var excelService = sp.GetRequiredService<IExcelService>();
-    var bowlExcelService = sp.GetRequiredService<IBowlExcelService>();
-    var logger = sp.GetRequiredService<ILogger<StorageService>>();
-    return new StorageService(connectionString, excelService, bowlExcelService, logger);
-});
-builder.Services.AddSingleton<WeeklyIngestionService>();
-builder.Services.AddSingleton<IScoringService, ScoringService>();
-builder.Services.AddSingleton<IStarterRecommendationService, StarterRecommendationService>();
-builder.Services.AddSingleton<IDogRecommendationService, DogRecommendationService>();
-
-builder.Build().Run();
+host.Run();

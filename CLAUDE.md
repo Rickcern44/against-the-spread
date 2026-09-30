@@ -35,15 +35,14 @@ moment the pin changes.
 |---|---|
 | Build | `dotnet build AgainstTheSpread.sln` |
 | Unit + component tests | `dotnet test AgainstTheSpread.sln` |
-| Local dev stack (no E2E) | `task start-local` … `task stop-local` |
-| Full local E2E | `task start-e2e` then `cd tests && npm exec -- tsc -p tsconfig.json --noEmit && npm test` then `task stop-e2e` |
-| Environment sanity check | `task validate-environment` |
+| Local dev stack (no E2E) | `./start-local.sh` … `./stop-local.sh` |
+| Full local E2E | `./start-e2e.sh` then `cd tests && npm exec -- tsc -p tsconfig.json --noEmit && npm test` then `./stop-e2e.sh` |
+| Environment sanity check | `./validate-environment.sh` |
 
 Local stack ports: Azurite `10000`/`10001`/`10002`, Functions `7071`, Blazor dev server `5158`,
 SWA CLI proxy `4280` — Playwright and the SWA-CLI-fronted app both target `4280`, not `5158`
-directly. `scripts/start-e2e.sh` backs up and swaps `wwwroot/appsettings.Development.json` to point
-the app at the proxy; only `scripts/stop-e2e.sh` restores it, so always pair the two (`task
-start-e2e` / `task stop-e2e`).
+directly. `start-e2e.sh` backs up and swaps `wwwroot/appsettings.Development.json` to point the
+app at the proxy; only `stop-e2e.sh` restores it, so always pair the two.
 
 ## Tests
 
@@ -72,7 +71,7 @@ one you're dispatching to before assuming what it covers:
 Green `dotnet test` is necessary, not sufficient. In order:
 
 1. `dotnet build` + `dotnet test AgainstTheSpread.sln` clean.
-2. Full local E2E (`task start-e2e` → `npm test` → `task stop-e2e`) — this is the only local check
+2. Full local E2E (`./start-e2e.sh` → `npm test` → `./stop-e2e.sh`) — this is the only local check
    that exercises Azurite, the isolated-worker Functions host, the Blazor app, and the SWA CLI
    proxy together, and it catches DI/wiring breakage that mocked unit tests cannot.
 3. Open a PR. CI must build and test through the real pipeline before deploy — confirm the build

@@ -12,7 +12,7 @@ public class ExcelServiceTests : IDisposable
     public ExcelServiceTests()
     {
         _excelService = new ExcelService();
-        ExcelPackage.License.SetNonCommercialPersonal("AgainstTheSpread");
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
     }
 
     public void Dispose()

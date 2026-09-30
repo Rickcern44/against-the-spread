@@ -169,10 +169,3 @@ test-output/
 generated-picks.xlsx
 *.deb
 build/
-# Playwright CLI output (may contain credentials)
-.playwright-cli/
-
-
-.claude/settings.local.json
-.rig/
-*.rig-state

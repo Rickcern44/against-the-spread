@@ -17,7 +17,7 @@ public class BowlExcelServiceTests
 
     private Stream CreateBowlLinesExcel(List<(string BowlName, string Favorite, decimal Line, string Underdog)> games)
     {
-        ExcelPackage.License.SetNonCommercialPersonal("AgainstTheSpread");
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         var stream = new MemoryStream();
         using (var package = new ExcelPackage())
         {
@@ -93,7 +93,7 @@ public class BowlExcelServiceTests
     public async Task ParseBowlLinesAsync_EmptyFile_ThrowsFormatException()
     {
         // Arrange
-        ExcelPackage.License.SetNonCommercialPersonal("AgainstTheSpread");
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         using (var package = new ExcelPackage())
         {
             var worksheet = package.Workbook.Worksheets.Add("Bowl Lines");
@@ -116,7 +116,7 @@ public class BowlExcelServiceTests
     public async Task ParseBowlLinesAsync_MissingColumns_ThrowsFormatException()
     {
         // Arrange
-        ExcelPackage.License.SetNonCommercialPersonal("AgainstTheSpread");
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         using (var package = new ExcelPackage())
         {
             var worksheet = package.Workbook.Worksheets.Add("Bowl Lines");
@@ -189,7 +189,7 @@ public class BowlExcelServiceTests
         var result = await _service.GenerateBowlPicksExcelAsync(userPicks);
 
         // Verify by reading the Excel
-        ExcelPackage.License.SetNonCommercialPersonal("AgainstTheSpread");
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         using var stream = new MemoryStream(result);
         using var package = new ExcelPackage(stream);
         var worksheet = package.Workbook.Worksheets[0];
@@ -243,7 +243,7 @@ public class BowlExcelServiceTests
         var result = await _service.GenerateBowlPicksExcelAsync(userPicks);
 
         // Verify by reading the Excel
-        ExcelPackage.License.SetNonCommercialPersonal("AgainstTheSpread");
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         using var stream = new MemoryStream(result);
         using var package = new ExcelPackage(stream);
         var worksheet = package.Workbook.Worksheets[0];

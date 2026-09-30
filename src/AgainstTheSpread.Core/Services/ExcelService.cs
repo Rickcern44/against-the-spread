@@ -13,7 +13,7 @@ public class ExcelService : IExcelService
     public ExcelService()
     {
         // Set EPPlus license context (non-commercial use)
-        ExcelPackage.License.SetNonCommercialPersonal("AgainstTheSpread");
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
     }
 
     /// <summary>

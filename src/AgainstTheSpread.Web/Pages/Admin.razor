@@ -1,127 +1,595 @@
 @page "/admin"
-@using AgainstTheSpread.Core.Contracts
-@using AgainstTheSpread.Core.Interfaces
+@using AgainstTheSpread.Web.Services
 @using Microsoft.AspNetCore.Components.Forms
-@inject IAppApiClient Api
-<PageTitle>Weekly data console</PageTitle>
+@implements IAsyncDisposable
+@inject ApiService ApiService
+@inject IJSRuntime JS
+@inject IConfiguration Configuration
 
-<div class="page-eyebrow">Commissioner tools</div>
-<h1 class="page-heading">Weekly data console</h1>
-<p class="page-subtitle">Lines and results are pulled automatically. Use this page to re-trigger a pull or correct an official line.</p>
+<PageTitle>Admin - Upload Lines</PageTitle>
 
-<MudPaper Class="surface-panel mb-5" Elevation="0">
-    <MudSelect T="int" Value="week" ValueChanged="OnWeekChanged" Label="Week" Variant="Variant.Outlined" Dense="true" Class="week-select">
-        @for (var item = 1; item <= 18; item++)
-        {
-            var w = item;
-            <MudSelectItem Value="@w">Week @w</MudSelectItem>
-        }
-    </MudSelect>
-</MudPaper>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="mb-4">🏈 Admin - Upload Weekly Lines</h1>
 
-@if (loading)
-{
-    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
-}
-else if (problem is not null)
-{
-    <MudAlert Severity="Severity.Warning">@problem</MudAlert>
-}
-else if (status is not null)
-{
-    <MudPaper Class="surface-panel mb-4" Elevation="0">
-        <h2 class="section-heading mb-3">Data pulls</h2>
-        <MudSimpleTable Dense="true" Class="ats-table">
-            <thead>
-                <tr><th>Pull</th><th>Status</th><th>Last completed</th><th></th></tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Odds / lines</td>
-                    <td>@PullStatus(status.Lines)</td>
-                    <td class="mono">@Completed(status.Lines)</td>
-                    <td><MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="() => RetriggerAsync(DataPullKind.Lines)">Re-trigger</MudButton></td>
-                </tr>
-                <tr>
-                    <td>Scores / results</td>
-                    <td>@PullStatus(status.Results)</td>
-                    <td class="mono">@Completed(status.Results)</td>
-                    <td><MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="() => RetriggerAsync(DataPullKind.Results)">Re-trigger</MudButton></td>
-                </tr>
-            </tbody>
-        </MudSimpleTable>
-    </MudPaper>
+            @if (!isAuthorized)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <h3 class="mb-4">🔐 Admin Access Required</h3>
+                        <p class="text-muted mb-4">Please sign in with your Google account to access admin features.</p>
+                        @if (!string.IsNullOrEmpty(authMessage))
+                        {
+                            <div class="alert alert-warning" role="alert">@authMessage</div>
+                        }
+                        @if (isSigningIn)
+                        {
+                            <div class="spinner-border spinner-border-sm mb-3" role="status"></div>
+                            <div>Verifying your Google account...</div>
+                        }
+                        <div id="google-signin-button" class="d-flex justify-content-center"></div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    Signed in as: <strong>@userEmail</strong>
+                    <button class="btn btn-sm btn-outline-secondary float-end" @onclick="LogoutAsync">Sign Out</button>
+                </div>
 
-    <MudPaper Class="surface-panel mb-4" Elevation="0">
-        <EditForm Model="this" OnValidSubmit="OverrideAsync">
-            <h2 class="section-heading mb-3">Official-line override</h2>
-            <MudGrid>
-                <MudItem xs="12" sm="6">
-                    <MudTextField @bind-Value="gameId" Label="Game ID" Variant="Variant.Outlined" />
-                </MudItem>
-                <MudItem xs="12" sm="6">
-                    <MudNumericField @bind-Value="officialLine" Label="Points laid by favorite" Step="0.5m" Variant="Variant.Outlined" />
-                </MudItem>
-            </MudGrid>
-            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3">Save override</MudButton>
-        </EditForm>
-    </MudPaper>
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Error!</strong> @errorMessage
+                        <button type="button" class="btn-close" @onclick="ClearError"></button>
+                    </div>
+                }
 
-    <MudPaper Class="surface-panel" Elevation="0">
-        <h2 class="section-heading mb-2">Manual fallback</h2>
-        <p class="page-subtitle" style="margin-bottom:1rem">Stage a CSV or text extract, then re-trigger the supported lines pull. The locked contract has no upload payload, so staged content is deliberately not sent as an undocumented request.</p>
-        <InputFile OnChange="SelectFile" />
-        <MudTextField @bind-Value="pastedLines" Label="Paste lines for operator review" Lines="3" Variant="Variant.Outlined" Class="mt-3" />
-        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Class="mt-3" OnClick="() => RetriggerAsync(DataPullKind.Lines)">Re-trigger lines pull</MudButton>
-    </MudPaper>
-}
-@if (message is not null)
-{
-    <MudAlert Severity="Severity.Success" Class="mt-3">@message</MudAlert>
-}
+                @if (!string.IsNullOrEmpty(successMessage))
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success!</strong> @successMessage
+                        <button type="button" class="btn-close" @onclick="ClearSuccess"></button>
+                    </div>
+                }
+
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Upload Game Lines</h5>
+                        <p class="text-muted">Upload an Excel file (.xlsx) containing the weekly betting lines.</p>
+
+                        <div class="mb-3">
+                            <label for="weekInput" class="form-label">Week Number</label>
+                            <input type="number" class="form-control" id="weekInput" @bind="weekNumber" min="1" max="17"
+                                placeholder="Enter week number (1-17)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="yearInput" class="form-label">Year</label>
+                            <input type="number" class="form-control" id="yearInput" @bind="year" min="2024" max="2030"
+                                placeholder="Enter year" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="fileInput" class="form-label">Excel File</label>
+                            <InputFile class="form-control" id="fileInput" OnChange="OnFileSelected"
+                                accept=".xlsx,.xls,.csv" />
+                            <div class="form-text">
+                                Select an Excel file with game lines. Must include: Team, Opponent, Line, Date/Time.
+                            </div>
+                        </div>
+
+                        @if (selectedFile != null)
+                        {
+                            <div class="alert alert-info">
+                                <strong>Selected file:</strong> @selectedFile.Name (@(selectedFile.Size / 1024) KB)
+                            </div>
+                        }
+
+                        <button class="btn btn-primary btn-lg w-100" @onclick="UploadFile"
+                            disabled="@(isUploading || selectedFile == null || weekNumber < 1)">
+                            @if (isUploading)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>Uploading...</span>
+                            }
+                            else
+                            {
+                                <span>📤 Upload Lines</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">📋 File Format Requirements</h5>
+                        <ul class="mb-0">
+                            <li>Excel file (.xlsx or .xls) or CSV</li>
+                            <li>Must contain columns: Team, Opponent, Line, Date/Time</li>
+                            <li>Line format: "Team -7.5" or "Opponent +3.5"</li>
+                            <li>Date format: "MM/DD/YYYY HH:MM" or similar</li>
+                            <li>Each row represents one game</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">💡 Tips</h5>
+                        <ul class="mb-0">
+                            <li>Upload files on Sunday evening for the upcoming week</li>
+                            <li>Double-check the week number before uploading</li>
+                            <li>You can re-upload to overwrite existing lines</li>
+                            <li>Users will see the new lines immediately after upload</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Bowl Games Upload Section -->
+                <hr class="my-5" />
+                <h2 class="mb-4">🏆 Bowl Games - Upload Bowl Lines</h2>
+
+                @if (!string.IsNullOrEmpty(bowlErrorMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Error!</strong> @bowlErrorMessage
+                        <button type="button" class="btn-close" @onclick="ClearBowlError"></button>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(bowlSuccessMessage))
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success!</strong> @bowlSuccessMessage
+                        <button type="button" class="btn-close" @onclick="ClearBowlSuccess"></button>
+                    </div>
+                }
+
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Upload Bowl Game Lines</h5>
+                        <p class="text-muted">Upload an Excel file (.xlsx) containing the bowl game betting lines.</p>
+
+                        <div class="mb-3">
+                            <label for="bowlYearInput" class="form-label">Bowl Season Year</label>
+                            <input type="number" class="form-control" id="bowlYearInput" @bind="bowlYear" min="2024" max="@(DateTime.Now.Year + 5)"
+                                placeholder="Enter year" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bowlFileInput" class="form-label">Bowl Lines Excel File</label>
+                            <InputFile class="form-control" id="bowlFileInput" OnChange="OnBowlFileSelected"
+                                accept=".xlsx,.xls" />
+                            <div class="form-text">
+                                Select an Excel file with bowl game lines. Must include: Bowl Name, Favorite, Line, Underdog, Date.
+                            </div>
+                        </div>
+
+                        @if (selectedBowlFile != null)
+                        {
+                            <div class="alert alert-info">
+                                <strong>Selected file:</strong> @selectedBowlFile.Name (@(selectedBowlFile.Size / 1024) KB)
+                            </div>
+                        }
+
+                        <button class="btn btn-success btn-lg w-100" @onclick="UploadBowlFile"
+                            disabled="@(isBowlUploading || selectedBowlFile == null)">
+                            @if (isBowlUploading)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>Uploading Bowl Lines...</span>
+                            }
+                            else
+                            {
+                                <span>🏆 Upload Bowl Lines</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">📋 Bowl File Format Requirements</h5>
+                        <ul class="mb-0">
+                            <li>Excel file (.xlsx)</li>
+                            <li>Must contain columns: Bowl Name, Favorite, Line, Underdog (Under Dog), Date</li>
+                            <li>Line format: -7.5 or +3.5 (numeric values)</li>
+                            <li>Date format: MM/DD/YYYY or similar</li>
+                            <li>Each row represents one bowl game</li>
+                        </ul>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 @code {
-    private int week = 1;
-    private bool loading = true;
-    private string? problem, message, gameId, pastedLines;
-    private decimal officialLine;
-    private IBrowserFile? stagedFile;
-    private WeekDataStatusResponse? status;
+    private bool isAuthorized = false;
+    private bool isSigningIn = false;
+    private string? userEmail;
+    private string? idToken;
+    private string? authMessage;
+    private DotNetObjectReference<Admin>? componentReference;
+    private long authenticationRevision;
+    private bool disposed;
+    private int weekNumber = 1;
+    private int year = DateTime.Now.Year;
+    private IBrowserFile? selectedFile;
+    private bool isUploading = false;
+    private string? errorMessage;
+    private string? successMessage;
 
-    protected override Task OnInitializedAsync() => LoadAsync();
+    // Bowl upload fields
+    private int bowlYear = DateTime.Now.Year;
+    private IBrowserFile? selectedBowlFile;
+    private bool isBowlUploading = false;
+    private string? bowlErrorMessage;
+    private string? bowlSuccessMessage;
 
-    private Task OnWeekChanged(int value) { week = value; return LoadAsync(); }
-
-    private async Task LoadAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        loading = true; problem = null;
-        var result = await Api.GetWeekDataAsync(week);
-        status = result.Data;
-        problem = result.Problem?.Message;
-        loading = false;
-    }
-
-    private async Task RetriggerAsync(DataPullKind pull)
-    {
-        message = null;
-        var result = await Api.PostWeekDataAsync(week, new(Pull: pull));
-        if (!result.Succeeded) problem = result.Problem!.Message;
-        else { status = result.Data; message = $"{pull} pull requested."; }
-    }
-
-    private async Task OverrideAsync()
-    {
-        if (string.IsNullOrWhiteSpace(gameId) || officialLine < 0)
+        if (!firstRender)
         {
-            problem = "Enter a game ID and a non-negative official line.";
             return;
         }
-        var result = await Api.PostWeekDataAsync(week, new(OfficialLineOverride: new(gameId, officialLine)));
-        if (!result.Succeeded) problem = result.Problem!.Message;
-        else { status = result.Data; message = "Official line override saved."; }
+
+        var clientId = Configuration["GoogleClientId"];
+        if (string.IsNullOrWhiteSpace(clientId))
+        {
+            authMessage = "Google sign-in is not configured.";
+            StateHasChanged();
+            return;
+        }
+
+        componentReference = DotNetObjectReference.Create(this);
+        var initializationRevision = authenticationRevision;
+        try
+        {
+            await JS.InvokeVoidAsync(
+                "googleAuth.initialize",
+                componentReference,
+                clientId,
+                "google-signin-button");
+        }
+        catch (JSException)
+        {
+            if (!disposed && initializationRevision == authenticationRevision)
+            {
+                authMessage = "Google sign-in could not be loaded. Please refresh and try again.";
+                StateHasChanged();
+            }
+        }
     }
 
-    private void SelectFile(InputFileChangeEventArgs args) => stagedFile = args.File;
-    private static string PullStatus(DataPullStatus pull) => pull.Succeeded ? "Ready" : pull.Problem?.Message ?? "Pending";
-    private static string Completed(DataPullStatus pull) => pull.CompletedAt?.ToLocalTime().ToString("g") ?? "Not completed";
+    [JSInvokable]
+    public async Task HandleGoogleCredential(string credential)
+    {
+        var sessionRevision = ++authenticationRevision;
+        isSigningIn = false;
+        isUploading = false;
+        isBowlUploading = false;
+        idToken = null;
+        userEmail = null;
+        isAuthorized = false;
+        ClearMessages();
+        ClearBowlMessages();
+
+        if (string.IsNullOrWhiteSpace(credential))
+        {
+            await RejectCredentialAsync(
+                "Google sign-in did not return a valid credential. Please try again.",
+                sessionRevision);
+            return;
+        }
+
+        idToken = credential;
+        isSigningIn = true;
+        authMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            var result = await ApiService.GetAdminIdentityAsync(credential);
+            if (sessionRevision != authenticationRevision)
+                return;
+
+            if (result.StatusCode == System.Net.HttpStatusCode.OK &&
+                !string.IsNullOrWhiteSpace(result.Email))
+            {
+                userEmail = result.Email;
+                isAuthorized = true;
+                return;
+            }
+
+            if (result.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                await RejectCredentialAsync(
+                    "This Google account is not authorized for admin access.",
+                    sessionRevision);
+                return;
+            }
+
+            await RejectCredentialAsync(
+                "Your Google sign-in is expired or invalid. Please sign in again.",
+                sessionRevision);
+        }
+        catch
+        {
+            await RejectCredentialAsync(
+                "Google sign-in could not be verified. Please try again.",
+                sessionRevision);
+        }
+        finally
+        {
+            if (!disposed && sessionRevision == authenticationRevision)
+            {
+                isSigningIn = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task RejectCredentialAsync(string message, long expectedRevision)
+    {
+        if (disposed || expectedRevision != authenticationRevision)
+            return;
+
+        var rejectionRevision = ++authenticationRevision;
+        idToken = null;
+        userEmail = null;
+        isAuthorized = false;
+        isSigningIn = false;
+        isUploading = false;
+        isBowlUploading = false;
+        authMessage = message;
+        ClearMessages();
+        ClearBowlMessages();
+        await DisableAutoSelectAsync();
+        if (!disposed && rejectionRevision == authenticationRevision)
+        {
+            StateHasChanged();
+        }
+    }
+
+    private async Task LogoutAsync()
+    {
+        var logoutRevision = ++authenticationRevision;
+        idToken = null;
+        userEmail = null;
+        isAuthorized = false;
+        isSigningIn = false;
+        isUploading = false;
+        isBowlUploading = false;
+        authMessage = null;
+        ClearMessages();
+        ClearBowlMessages();
+        await DisableAutoSelectAsync();
+        if (disposed || logoutRevision != authenticationRevision)
+            return;
+
+        StateHasChanged();
+        await Task.Yield();
+        if (disposed || logoutRevision != authenticationRevision)
+            return;
+
+        await JS.InvokeVoidAsync("googleAuth.renderButton", "google-signin-button");
+    }
+
+    private async Task DisableAutoSelectAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("googleAuth.disableAutoSelect");
+        }
+        catch (JSException)
+        {
+            // The credential is still cleared from application memory when GIS is unavailable.
+        }
+    }
+
+    private void OnFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+        ClearMessages();
+    }
+
+    private async Task UploadFile()
+    {
+        if (selectedFile == null || weekNumber < 1 ||
+            !isAuthorized || string.IsNullOrWhiteSpace(idToken))
+            return;
+
+        var uploadRevision = authenticationRevision;
+        var uploadToken = idToken;
+        var uploadFile = selectedFile;
+        var uploadWeek = weekNumber;
+        var uploadYear = year;
+        isUploading = true;
+        ClearMessages();
+
+        try
+        {
+            using var stream = uploadFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            if (uploadRevision != authenticationRevision)
+                return;
+
+            memoryStream.Position = 0;
+            var response = await ApiService.UploadLinesAsync(
+                uploadWeek,
+                uploadYear,
+                memoryStream,
+                uploadFile.Name,
+                uploadToken);
+            if (uploadRevision != authenticationRevision)
+                return;
+
+            if (response?.Success == true)
+            {
+                successMessage = response.Message;
+                if (ReferenceEquals(selectedFile, uploadFile))
+                {
+                    selectedFile = null;
+                }
+            }
+            else
+            {
+                errorMessage = !string.IsNullOrWhiteSpace(response?.Message)
+                    ? response.Message
+                    : "Failed to upload file. Please check the format and try again.";
+            }
+        }
+        catch (AdminAuthenticationException)
+        {
+            await RejectCredentialAsync(
+                "Your Google sign-in is expired or invalid. Please sign in again.",
+                uploadRevision);
+        }
+        catch
+        {
+            if (uploadRevision == authenticationRevision)
+            {
+                errorMessage = "An error occurred while uploading the file. Please try again.";
+            }
+        }
+        finally
+        {
+            if (uploadRevision == authenticationRevision)
+            {
+                isUploading = false;
+            }
+        }
+    }
+
+    private void ClearMessages()
+    {
+        errorMessage = null;
+        successMessage = null;
+    }
+
+    private void ClearError()
+    {
+        errorMessage = null;
+    }
+
+    private void ClearSuccess()
+    {
+        successMessage = null;
+    }
+
+    // Bowl upload methods
+    private void OnBowlFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedBowlFile = e.File;
+        ClearBowlMessages();
+    }
+
+    private async Task UploadBowlFile()
+    {
+        if (selectedBowlFile == null ||
+            !isAuthorized || string.IsNullOrWhiteSpace(idToken))
+            return;
+
+        var uploadRevision = authenticationRevision;
+        var uploadToken = idToken;
+        var uploadFile = selectedBowlFile;
+        var uploadYear = bowlYear;
+        isBowlUploading = true;
+        ClearBowlMessages();
+
+        try
+        {
+            using var stream = uploadFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            if (uploadRevision != authenticationRevision)
+                return;
+
+            memoryStream.Position = 0;
+            var response = await ApiService.UploadBowlLinesAsync(
+                uploadYear,
+                memoryStream,
+                uploadFile.Name,
+                uploadToken);
+            if (uploadRevision != authenticationRevision)
+                return;
+
+            if (response?.Success == true)
+            {
+                bowlSuccessMessage = response.Message;
+                if (ReferenceEquals(selectedBowlFile, uploadFile))
+                {
+                    selectedBowlFile = null;
+                }
+            }
+            else
+            {
+                bowlErrorMessage = "Failed to upload bowl file. Please check the format and try again.";
+            }
+        }
+        catch (AdminAuthenticationException)
+        {
+            await RejectCredentialAsync(
+                "Your Google sign-in is expired or invalid. Please sign in again.",
+                uploadRevision);
+        }
+        catch
+        {
+            if (uploadRevision == authenticationRevision)
+            {
+                bowlErrorMessage = "An error occurred while uploading the bowl file. Please try again.";
+            }
+        }
+        finally
+        {
+            if (uploadRevision == authenticationRevision)
+            {
+                isBowlUploading = false;
+            }
+        }
+    }
+
+    private void ClearBowlMessages()
+    {
+        bowlErrorMessage = null;
+        bowlSuccessMessage = null;
+    }
+
+    private void ClearBowlError()
+    {
+        bowlErrorMessage = null;
+    }
+
+    private void ClearBowlSuccess()
+    {
+        bowlSuccessMessage = null;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        disposed = true;
+        authenticationRevision++;
+        idToken = null;
+        userEmail = null;
+        isAuthorized = false;
+        isSigningIn = false;
+        isUploading = false;
+        isBowlUploading = false;
+
+        try
+        {
+            await JS.InvokeVoidAsync("googleAuth.dispose");
+        }
+        catch (JSDisconnectedException)
+        {
+            // The browser context is already gone.
+        }
+
+        componentReference?.Dispose();
+    }
 }

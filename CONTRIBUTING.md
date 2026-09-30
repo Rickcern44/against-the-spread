@@ -27,7 +27,7 @@ This project is designed to be implemented primarily by AI agents with human ove
 3. **Validate Changes**
    - Run `dotnet build` - ensure compilation succeeds
    - Run `dotnet test` - ensure all unit tests pass (156+ tests)
-   - Run E2E tests - `task start-e2e && cd tests && npm test` (2+ tests)
+   - Run E2E tests - `./start-e2e.sh && cd tests && npm test` (2+ tests)
    - Test locally with Azurite and browsers
    - Verify changes against acceptance criteria
    - **A task is NOT complete until ALL tests pass**
@@ -59,7 +59,7 @@ All contributions MUST include tests:
 
 **CRITICAL: All tests must pass before any PR is merged:**
 - Unit tests: `dotnet test` (156+ tests)
-- E2E tests: `cd tests && npm test` (2+ tests, requires `task start-e2e`)
+- E2E tests: `cd tests && npm test` (2+ tests, requires `./start-e2e.sh`)
 
 ### Unit Tests
 - Test all business logic
@@ -232,9 +232,9 @@ Reviewers should verify:
 Before contributing:
 1. [`.agents.md`](.agents.md) - Agent development guide
 2. [`README.md`](README.md) - Project overview
-3. [`docs/deprecated/TESTING.md`](docs/deprecated/TESTING.md) - Unit testing guide
+3. [`TESTING.md`](TESTING.md) - Unit testing guide
 4. [`tests/README.md`](tests/README.md) - **E2E testing guide (Playwright)**
-5. Game rules in [`docs/deprecated/rules.md`](docs/deprecated/rules.md)
+5. Game rules in [`reference-docs/rules.md`](reference-docs/rules.md)
 
 ## 🐛 Reporting Issues
 

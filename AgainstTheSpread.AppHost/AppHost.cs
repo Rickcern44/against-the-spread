@@ -52,10 +52,26 @@ var functions = builder.AddAzureFunctionsProject<Projects.AgainstTheSpread_Funct
 // Blazor WASM PWA, served by its dev server. Pinned to 5158 - the SWA CLI proxy, Playwright,
 // and CI all hardcode this port today, and this app is a WebAssembly entry point (no
 // server-side host builder), so ServiceDefaults fundamentally does not apply to it either.
-var web = builder.AddProject<Projects.AgainstTheSpread_Web>("web")
+//
+// launchProfileName: "http" - AddProject<T> otherwise auto-discovers every profile in the
+// project's launchSettings.json, including "https" (a fixed :7103 from the IIS Express
+// defaults). That endpoint bypasses the SWA CLI proxy entirely and Aspire will happily
+// auto-launch a browser tab on it, which only ever talks to the Blazor static files with no
+// path to the API - any real fetch from that tab fails CORS against the :4280 proxy. Pinning
+// the profile to "http" keeps Aspire from ever registering or opening that dead-end endpoint.
+var web = builder.AddProject<Projects.AgainstTheSpread_Web>("web", launchProfileName: "http")
     .WithReference(functions)
     .WaitFor(functions)
-    .WithHttpEndpoint(port: 5158, name: "http");
+    .WithHttpEndpoint(port: 5158, name: "http")
+    // Demote this raw endpoint in the dashboard: it's WASM served with no API proxy in front,
+    // so any real API call from a tab opened here always fails CORS against :4280. Keep it out
+    // of the prominent summary link (DetailsOnly) and label it so the "swa" resource below -
+    // the one actual working entry point - is what people click instead.
+    .WithUrlForEndpoint("http", url =>
+    {
+        url.DisplayText = "Blazor dev server (no API proxy - do not open directly, use swa's :4280 instead)";
+        url.DisplayLocation = UrlDisplayLocation.DetailsOnly;
+    });
 
 // Static Web Apps CLI - fronts both web (app) and functions (api) behind a single origin at
 // :4280, exactly like scripts/start-e2e.sh / start-local.sh do today. No first-party Aspire
@@ -76,6 +92,7 @@ var swa = builder.AddExecutable("swa", "swa", "..", "start")
     // non-container resource when a proxy is requested (it would try to double-bind 4280,
     // once for Aspire's DCP proxy and once for the swa process, and fail to create).
     .WithHttpEndpoint(port: 4280, targetPort: 4280, name: "http", isProxied: false)
+    .WithUrlForEndpoint("http", url => url.DisplayText = "Open the app here")
     .WithArgs(context =>
     {
         context.Args.Add(web.GetEndpoint("http"));

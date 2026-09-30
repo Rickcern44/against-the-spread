@@ -6,6 +6,7 @@ using Microsoft.Azure.Functions.Worker.Extensions.Timer;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text.Json;
 
 namespace AgainstTheSpread.Functions;
 
@@ -55,7 +56,7 @@ public sealed class WeeklyIngestionFunctions
             await ok.WriteAsJsonAsync(new { success = true, season, week }, cancellationToken);
             return ok;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is InvalidOperationException or HttpRequestException or JsonException)
         {
             _logger.LogError(ex, "Weekly ingestion failed for {Season} week {Week}", season, week);
             var unavailable = request.CreateResponse(HttpStatusCode.ServiceUnavailable);

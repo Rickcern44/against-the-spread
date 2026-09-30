@@ -35,6 +35,16 @@ public sealed class EspnLiveProvidersTests
         results.Should().ContainSingle().Which.Should().Be(new AgainstTheSpread.Core.Interfaces.WeeklyGameResult("game-1", "CHI", 17, "PHI", 24));
     }
 
+    [Fact]
+    public async Task Live_lines_identify_an_espn_http_rejection_in_the_error()
+    {
+        using var client = new HttpClient(new StatusCodeHandler(HttpStatusCode.Forbidden)) { BaseAddress = new Uri("https://example.test/") };
+        var act = () => new EspnLiveLinesProvider(client).GetWeeklyGamesAsync(2026, 3);
+
+        var exception = await act.Should().ThrowAsync<HttpRequestException>();
+        exception.Which.Message.Should().Contain("scoreboard").And.Contain("403").And.Contain("User-Agent");
+    }
+
     private static HttpClient Client(string scoreboardJson, string summaryJson) =>
         new(new RoutedResponseHandler(scoreboardJson, summaryJson)) { BaseAddress = new Uri("https://example.test/") };
 
@@ -53,5 +63,11 @@ public sealed class EspnLiveProvidersTests
             var json = request.RequestUri!.AbsolutePath.EndsWith("/summary", StringComparison.Ordinal) ? summaryJson : scoreboardJson;
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, Encoding.UTF8, "application/json") });
         }
+    }
+
+    private sealed class StatusCodeHandler(HttpStatusCode statusCode) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+            Task.FromResult(new HttpResponseMessage(statusCode));
     }
 }

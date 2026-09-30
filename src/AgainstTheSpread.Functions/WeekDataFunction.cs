@@ -128,7 +128,7 @@ public sealed class WeekDataFunction
                 await WriteJsonAsync(response, new WeekDataStatusResponse(week, lines, results), cancellationToken);
                 return response;
             }
-            catch (Exception ex) when (ex is InvalidOperationException or HttpRequestException)
+            catch (Exception ex) when (ex is InvalidOperationException or HttpRequestException or JsonException)
             {
                 _logger.LogError(ex, "{Pull} pull failed for {Season} week {Week}", pull, season, week);
                 var current = await _storageService.GetWeeklyGamesAsync(season, week, cancellationToken);

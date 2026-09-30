@@ -73,7 +73,7 @@ internal static class EspnScoreboard
     public static async Task<JsonDocument> GetAsync(HttpClient http, int season, int week, CancellationToken cancellationToken)
     {
         var url = $"{BaseUrl}?limit=100&dates={season}&seasontype=2&week={week}";
-        return await http.GetFromJsonAsync<JsonDocument>(url, cancellationToken)
+        return await GetJsonAsync(http, url, "scoreboard", cancellationToken)
             ?? throw new InvalidOperationException("ESPN returned an empty scoreboard response.");
     }
 
@@ -82,11 +82,26 @@ internal static class EspnScoreboard
     public static async Task<string?> GetSpreadDetailsAsync(HttpClient http, string eventId, CancellationToken cancellationToken)
     {
         var url = $"{SummaryUrl}?event={eventId}";
-        using var document = await http.GetFromJsonAsync<JsonDocument>(url, cancellationToken)
+        using var document = await GetJsonAsync(http, url, $"summary for game {eventId}", cancellationToken)
             ?? throw new InvalidOperationException($"ESPN returned an empty summary response for game {eventId}.");
         if (!document.RootElement.TryGetProperty("pickcenter", out var pickcenter) || pickcenter.GetArrayLength() == 0)
             return null;
         return pickcenter[0].GetProperty("details").GetString();
+    }
+
+    private static async Task<JsonDocument?> GetJsonAsync(HttpClient http, string url, string resource, CancellationToken cancellationToken)
+    {
+        using var response = await http.GetAsync(url, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            var status = $"{(int)response.StatusCode} ({response.ReasonPhrase ?? "no reason provided"})";
+            throw new HttpRequestException(
+                $"ESPN {resource} request failed with HTTP {status}. Ensure the configured ESPN HttpClient sends a User-Agent header.",
+                null,
+                response.StatusCode);
+        }
+
+        return await response.Content.ReadFromJsonAsync<JsonDocument>(cancellationToken: cancellationToken);
     }
 
     public static IEnumerable<JsonElement> Events(JsonElement root) => root.GetProperty("events").EnumerateArray();

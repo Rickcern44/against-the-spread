@@ -12,6 +12,7 @@ public interface IAppApiClient
     Task<ApiResponse<StandingsResponse>> GetStandingsAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<WeekDataStatusResponse>> GetWeekDataAsync(int week, CancellationToken cancellationToken = default);
     Task<ApiResponse<WeekDataStatusResponse>> PostWeekDataAsync(int week, PostWeekDataRequest request, CancellationToken cancellationToken = default);
+    Task<ApiResponse<WeekDetailResponse>> GetWeekDetailAsync(int week, CancellationToken cancellationToken = default);
     Task<ApiResponse<SeasonRosterResponse>> GetSeasonRosterAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<SeasonRosterResponse>> SaveSeasonRosterAsync(SaveSeasonRosterRequest request, CancellationToken cancellationToken = default);
 }

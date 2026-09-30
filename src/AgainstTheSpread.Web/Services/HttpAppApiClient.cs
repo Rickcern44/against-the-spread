@@ -48,6 +48,9 @@ public sealed class HttpAppApiClient : IAppApiClient
         return await ToApiResponseAsync<WeekDataStatusResponse>(response, cancellationToken);
     }
 
+    public Task<ApiResponse<WeekDetailResponse>> GetWeekDetailAsync(int week, CancellationToken cancellationToken = default) =>
+        GetAsync<WeekDetailResponse>(AppApiRoutes.WeekDetail(week), cancellationToken);
+
     public Task<ApiResponse<SeasonRosterResponse>> GetSeasonRosterAsync(CancellationToken cancellationToken = default) =>
         GetAsync<SeasonRosterResponse>(AppApiRoutes.SeasonRoster, cancellationToken);
 

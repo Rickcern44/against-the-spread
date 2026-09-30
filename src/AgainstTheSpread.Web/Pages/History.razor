@@ -1,0 +1,142 @@
+@page "/history"
+@page "/history/{Week:int}"
+@using AgainstTheSpread.Core.Contracts
+@using AgainstTheSpread.Core.Interfaces
+@using AgainstTheSpread.Core.Models
+@inject IAppApiClient Api
+
+<PageTitle>Week history</PageTitle>
+
+<div class="page-eyebrow">Personal record</div>
+<h1 class="page-heading">Week history</h1>
+<p class="page-subtitle">Browse any week's slate, your saved picks, and its score.</p>
+
+<MudPaper Class="surface-panel mb-5" Elevation="0">
+    <MudSelect T="int" Value="selectedWeek" ValueChanged="OnWeekChanged" Label="Week" Variant="Variant.Outlined" Dense="true" Class="week-select">
+        @for (var item = 1; item <= MaxWeek; item++)
+        {
+            var w = item;
+            <MudSelectItem Value="@w">Week @w</MudSelectItem>
+        }
+    </MudSelect>
+</MudPaper>
+
+@if (loading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Loading week detail" />
+}
+else if (problem is not null)
+{
+    <MudAlert Severity="Severity.Info" Class="mb-4">
+        @problem <MudButton Variant="Variant.Text" Color="Color.Inherit" OnClick="LoadAsync" Class="ml-2">Retry</MudButton>
+    </MudAlert>
+}
+else if (detail is not null)
+{
+    <MudAlert Severity="Severity.Warning" Class="mb-5" Icon="@Icons.Material.Filled.History">
+        @detail.Correction.Message
+    </MudAlert>
+
+    @if (detail.Pick is null)
+    {
+        <MudAlert Severity="Severity.Info" Class="mb-5">No picks were logged for week @detail.Week.</MudAlert>
+    }
+    else
+    {
+        <MudPaper Class="surface-panel mb-5" Elevation="0">
+            <h2 class="section-heading mb-3">Saved starters</h2>
+            <ul class="review-list">
+                @foreach (var teamId in detail.Pick.StarterTeamIds)
+                {
+                    <li>@TeamName(teamId)</li>
+                }
+            </ul>
+            <h2 class="section-heading mt-4 mb-3">Saved dog picks</h2>
+            <ul class="review-list">
+                @foreach (var dog in detail.Pick.DogPicks)
+                {
+                    <li>@TeamName(dog.TeamId)</li>
+                }
+            </ul>
+        </MudPaper>
+
+        @if (detail.Score is not null)
+        {
+            <MudAlert Severity="Severity.Success" Class="mb-5">
+                <strong>Week @detail.Week score:</strong> @detail.Score.StarterPoints starter points + @detail.Score.DogPoints dog points.
+            </MudAlert>
+        }
+        else
+        {
+            <MudAlert Severity="Severity.Info" Class="mb-5">
+                This week's saved pick no longer scores cleanly against the current slate (e.g. an official-line correction changed eligibility), so no score is shown.
+            </MudAlert>
+        }
+    }
+
+    <MudPaper Class="surface-panel" Elevation="0">
+        <h2 class="section-heading mb-3">Slate <span class="section-hint">— week @detail.Week</span></h2>
+        <div class="picker-list">
+            @foreach (var game in detail.Games)
+            {
+                var assumedLine = !game.IsOfficialLineConfirmed;
+                <div class="picker-row">
+                    <div class="picker-row-main">
+                        <div class="picker-row-body">
+                            <span class="picker-row-team">@TeamName(game.FavoriteTeamId) vs @TeamName(game.UnderdogTeamId)</span>
+                            <span class="picker-row-meta mono">
+                                Line: @(game.ScoringLine?.ToString("0.#") ?? "TBD")
+                                @if (assumedLine)
+                                {
+                                    <span class="assumed-line-badge">Assumed line</span>
+                                }
+                                @if (game.Result is not null)
+                                {
+                                    <text> · Final: @game.Result.FavoriteScore-@game.Result.UnderdogScore</text>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </MudPaper>
+}
+
+@code {
+    private const int MaxWeek = 18;
+
+    [Parameter] public int? Week { get; set; }
+
+    private int selectedWeek = 1;
+    private bool loading = true;
+    private string? problem;
+    private WeekDetailResponse? detail;
+
+    protected override Task OnInitializedAsync()
+    {
+        selectedWeek = Week is > 0 and <= MaxWeek ? Week.Value : 1;
+        return LoadAsync();
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        var target = Week is > 0 and <= MaxWeek ? Week.Value : selectedWeek;
+        if (target == selectedWeek) return Task.CompletedTask;
+        selectedWeek = target;
+        return LoadAsync();
+    }
+
+    private Task OnWeekChanged(int value) { selectedWeek = value; return LoadAsync(); }
+
+    private async Task LoadAsync()
+    {
+        loading = true; problem = null; detail = null;
+        var result = await Api.GetWeekDetailAsync(selectedWeek);
+        if (!result.Succeeded) { problem = result.Problem!.Message; loading = false; return; }
+        detail = result.Data!;
+        loading = false;
+    }
+
+    private string TeamName(string id) => detail?.Teams.SingleOrDefault(t => t.Id == id)?.DisplayName ?? id;
+}

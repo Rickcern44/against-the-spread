@@ -30,6 +30,22 @@ else if (standings is not null)
         <span class="record-badge ofer">0fer: @(standings.Season.OferRecordTotal?.ToString("0.#") ?? "—")</span>
     </div>
 
+    <MudAlert Severity="Severity.Info" Class="mb-5" Icon="@Icons.Material.Filled.Groups">
+        <strong>About this page:</strong> everything above is <em>your own</em> personal record, computed
+        from picks you logged here. It is not the commissioner's official standings, and it does not
+        include where you rank against the other players in the league.
+    </MudAlert>
+
+    <MudPaper Class="surface-panel mb-5" Elevation="0">
+        <h2 class="section-heading mb-3">League standing</h2>
+        <MudAlert Severity="Severity.Warning" Icon="@Icons.Material.Filled.CloudOff">
+            Opponent standings aren't available yet. There's no import from the commissioner's
+            spreadsheet wired up, so this tool can't show your rank among the other players -
+            only your own totals above. When an import format is agreed on, this section will
+            show where you stand against the league.
+        </MudAlert>
+    </MudPaper>
+
     <MudPaper Class="surface-panel" Elevation="0">
         <h2 class="section-heading mb-3">Week-by-week</h2>
         <MudTable Items="@standings.WeeklyHistory" Dense="true" Hover="true" Class="ats-table">

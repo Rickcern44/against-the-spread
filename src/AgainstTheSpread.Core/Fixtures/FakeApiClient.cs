@@ -61,6 +61,15 @@ public sealed class FakeApiClient : IAppApiClient
     public Task<ApiResponse<WeekDataStatusResponse>> PostWeekDataAsync(int week, PostWeekDataRequest request, CancellationToken cancellationToken = default) =>
         Task.FromResult(week == 1 ? ApiResponse<WeekDataStatusResponse>.Success(WeekOneData) : NotPulled<WeekDataStatusResponse>(week));
 
+    public Task<ApiResponse<WeekDetailResponse>> GetWeekDetailAsync(int week, CancellationToken cancellationToken = default)
+    {
+        if (week != 1) return Task.FromResult(NotPulled<WeekDetailResponse>(week));
+
+        var score = new WeeklyScore(11m, 0m, 2m, new PoolTotals(11m, 2m, 13m, 0m), new TierWinCounts(Green: 2, Blue: 1), false, true, false, 13m, true, false, new[] { 7 });
+        var detail = new WeekDetailResponse(1, WeekOneGames, WeekOneTeams, WeekOnePick, score, WeekCorrectionStatus.NotTracked());
+        return Task.FromResult(ApiResponse<WeekDetailResponse>.Success(detail));
+    }
+
     public Task<ApiResponse<SeasonRosterResponse>> GetSeasonRosterAsync(CancellationToken cancellationToken = default) =>
         Task.FromResult(roster is not null
             ? ApiResponse<SeasonRosterResponse>.Success(roster)

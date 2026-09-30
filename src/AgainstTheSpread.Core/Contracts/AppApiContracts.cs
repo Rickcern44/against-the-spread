@@ -11,6 +11,7 @@ public static class AppApiRoutes
     public static string WeekPicks(int week) => $"/api/weeks/{week}/picks";
     public static string WeekRecommendation(int week) => $"/api/weeks/{week}/recommendation";
     public static string WeekData(int week) => $"/api/weeks/{week}/data";
+    public static string WeekDetail(int week) => $"/api/weeks/{week}/detail";
 }
 
 /// <summary>Every API operation returns this envelope, including expected empty states.</summary>
@@ -76,3 +77,29 @@ public sealed record SeasonRosterResponse(int Season, IReadOnlyList<Team> Teams)
 
 /// <summary>PUT /api/roster. Must supply exactly <see cref="Models.SeasonRoster.RequiredTeamCount"/> unique team ids.</summary>
 public sealed record SaveSeasonRosterRequest(IReadOnlyList<string> TeamIds);
+
+/// <summary>
+/// Whether this week's saved pick has any known post-deadline correction history, and why not
+/// when it doesn't. Storage today only ever keeps the single, latest saved <see cref="WeeklyPick"/>
+/// per week - it does not retain prior versions or the timestamp a correction was made - so
+/// <see cref="HasTrackedHistory"/> is always <c>false</c> until that persistence gap is closed.
+/// This type exists so the history view can say so honestly rather than inventing a history.
+/// </summary>
+public sealed record WeekCorrectionStatus(bool HasTrackedHistory, string Message)
+{
+    public static WeekCorrectionStatus NotTracked() => new(false,
+        "Correction history isn't persisted yet - only the most recently saved pick is kept, " +
+        "so a past edit made after this week's deadline can't be shown here.");
+}
+
+/// <summary>GET /api/weeks/{week}/detail. A read-only rollup of a single week for the history
+/// view: the slate, the saved pick (if any), its score (if scorable), and correction-history
+/// status. Mirrors <see cref="WeekGamesResponse"/> plus <see cref="WeekPicksResponse"/> rather
+/// than replacing either, since Picks.razor still owns the live edit flow for the current week.</summary>
+public sealed record WeekDetailResponse(
+    int Week,
+    IReadOnlyList<WeeklyGame> Games,
+    IReadOnlyList<Team> Teams,
+    WeeklyPick? Pick,
+    WeeklyScore? Score,
+    WeekCorrectionStatus Correction);

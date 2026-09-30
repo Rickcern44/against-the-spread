@@ -150,6 +150,7 @@ public sealed class PicksTests : MudBunitTestContext
         public Task<ApiResponse<WeekRecommendationResponse>> GetWeekRecommendationAsync(int week, CancellationToken ct = default) => inner.GetWeekRecommendationAsync(week, ct);
         public Task<ApiResponse<WeekDataStatusResponse>> GetWeekDataAsync(int week, CancellationToken ct = default) => inner.GetWeekDataAsync(week, ct);
         public Task<ApiResponse<WeekDataStatusResponse>> PostWeekDataAsync(int week, PostWeekDataRequest request, CancellationToken ct = default) => inner.PostWeekDataAsync(week, request, ct);
+        public Task<ApiResponse<WeekDetailResponse>> GetWeekDetailAsync(int week, CancellationToken ct = default) => inner.GetWeekDetailAsync(week, ct);
         public Task<ApiResponse<SeasonRosterResponse>> GetSeasonRosterAsync(CancellationToken ct = default) => inner.GetSeasonRosterAsync(ct);
         public Task<ApiResponse<SeasonRosterResponse>> SaveSeasonRosterAsync(SaveSeasonRosterRequest request, CancellationToken ct = default) => inner.SaveSeasonRosterAsync(request, ct);
 

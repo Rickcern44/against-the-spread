@@ -1,12 +1,32 @@
-﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@inherits LayoutComponentBase
 
-    <main>
-        <article class="content px-4">
+<MudLayout>
+    <MudAppBar Elevation="0" Class="app-bar">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                       Class="d-md-none" OnClick="@ToggleDrawer" />
+        <div class="brand">
+            <span class="brand-mark">ATS</span>
+            <span class="brand-name">Against The Spread</span>
+        </div>
+        <MudSpacer />
+        <div class="live-chip">
+            <span class="live-dot"></span>
+            <span>Season live</span>
+        </div>
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="@drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="0" Class="app-drawer">
+        <NavMenu />
+    </MudDrawer>
+
+    <MudMainContent Class="app-main">
+        <MudContainer MaxWidth="MaxWidth.Large" Class="py-6">
             @Body
-        </article>
-    </main>
-</div>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool drawerOpen = true;
+    private void ToggleDrawer() => drawerOpen = !drawerOpen;
+}

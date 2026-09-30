@@ -56,9 +56,9 @@ We provide multiple ways to work with this repository using GitHub Copilot:
 - ✅ **VS Code Dev Container**: Docker-based local development with all tools pre-installed
 - ✅ **Pre-configured**: .NET (SDK pinned in `global.json`), Node.js, Azure Functions, Azurite, Playwright
 - ✅ **No Firewall Issues**: All services run locally/in-cloud
-- ✅ **One-Click Start**: `./start-local.sh` starts everything
+- ✅ **One-Click Start**: `task start-local` starts everything
 
-**👉 [See COPILOT_ENVIRONMENT.md for detailed instructions](COPILOT_ENVIRONMENT.md)**
+**👉 [See COPILOT_ENVIRONMENT.md for detailed instructions](docs/deprecated/COPILOT_ENVIRONMENT.md)**
 
 ### Manual Setup
 
@@ -94,22 +94,32 @@ If you prefer to install tools manually:
    - The production workflow retains the original Static Web App deployment-token binding.
    - Existing production infrastructure is not safely represented by the historical Terraform in this repository; do not apply it to update production.
 
-See [CONSOLIDATION_RUNBOOK.md](CONSOLIDATION_RUNBOOK.md) for the authoritative production resource identities, backup, deployment, E2E, rollback, and retirement gates.
+See [CONSOLIDATION_RUNBOOK.md](docs/deprecated/CONSOLIDATION_RUNBOOK.md) for the authoritative production resource identities, backup, deployment, E2E, rollback, and retirement gates.
+
+#### Functions local settings
+
+`src/AgainstTheSpread.Functions/local.settings.json` is gitignored and not created for you.
+Copy `local.settings.json.example` in the same folder to `local.settings.json` before running
+`func start` (directly or via `task start-local`/`task start-e2e`). It documents the minimum
+values the isolated-worker host needs to bind without crashing, including placeholder
+`WeeklyLinesSchedule`/`WeeklyResultsSchedule` NCRONTAB expressions for the timer-triggered
+ingestion functions in `WeeklyIngestionFunctions.cs` — adjust the placeholders to your actual
+desired pull cadence.
 
 ### Local development and E2E
 
 The supported local integration path starts Azurite, Functions, Blazor, and the SWA proxy:
 
 ```bash
-./start-e2e.sh
+task start-e2e
 cd tests
 npm exec -- tsc -p tsconfig.json --noEmit
 npm test
 cd ..
-./stop-e2e.sh
+task stop-e2e
 ```
 
-Browser fixture flows seed only local Azurite and never bypass production authorization. Real Google token validation must be tested separately with a registered local JavaScript origin and an allowlisted account. See `LOCAL_DEV_AUTH.md` and `tests/README.md`.
+Browser fixture flows seed only local Azurite and never bypass production authorization. Real Google token validation must be tested separately with a registered local JavaScript origin and an allowlisted account. See `docs/deprecated/LOCAL_DEV_AUTH.md` and `tests/README.md`.
 
 ### Run Tests
 
@@ -157,7 +167,7 @@ The project follows a Test-Driven Development (TDD) approach:
 
 ## 🚢 Deployment
 
-Deployments are automated through the original Azure Static Web Apps workflow after its validation job passes. The checked-in Terraform is historical and must not be applied to the live production topology. Follow [CONSOLIDATION_RUNBOOK.md](CONSOLIDATION_RUNBOOK.md) for the verified resource identity, backup, deployment, rollback, and acceptance gates.
+Deployments are automated through the original Azure Static Web Apps workflow after its validation job passes. The checked-in Terraform is historical and must not be applied to the live production topology. Follow [CONSOLIDATION_RUNBOOK.md](docs/deprecated/CONSOLIDATION_RUNBOOK.md) for the verified resource identity, backup, deployment, rollback, and acceptance gates.
 
 ## 📱 PWA Installation
 

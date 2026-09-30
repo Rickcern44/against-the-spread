@@ -25,9 +25,9 @@ validating.
   blobs to the live container. When in doubt, grep the API for which methods actually call a
   write/put/upload operation before deciding a flow is safe to exercise against a deployed slot —
   do not assume from the endpoint name.
-- **`start-e2e.sh` overwrites the local `wwwroot/appsettings.Development.json`** (backing it up to
+- **`scripts/start-e2e.sh` (`task start-e2e`) overwrites the local `wwwroot/appsettings.Development.json`** (backing it up to
   `.bak`) so the app points at the SWA CLI proxy port instead of the raw API port; only
-  `stop-e2e.sh` restores it. Always pair a `start-e2e.sh` with a `stop-e2e.sh`, including on
+  `scripts/stop-e2e.sh` (`task stop-e2e`) restores it. Always pair a `scripts/start-e2e.sh` (`task start-e2e`) with a `scripts/stop-e2e.sh` (`task stop-e2e`), including on
   failure — do not leave the environment running or the config swapped. Before reporting done,
   confirm `git status` shows that file clean.
 - If the browser MCP tools are not connected in this session, do not skip the browser-proof step —
@@ -38,8 +38,8 @@ validating.
 
 Ports: Azurite `10000`/`10001`/`10002`, Functions `7071`, Blazor dev server `5158`, SWA CLI proxy
 `4280` (this is the entry point Playwright targets — not `5158` directly). Sequence:
-`./start-e2e.sh` → `cd tests && npm exec -- tsc -p tsconfig.json --noEmit && npm test` →
-`./stop-e2e.sh`. `./start-e2e.sh` blocks and polls each port before proceeding; if it reports a
+`task start-e2e` → `cd tests && npm exec -- tsc -p tsconfig.json --noEmit && npm test` →
+`task stop-e2e`. `task start-e2e` blocks and polls each port before proceeding; if it reports a
 service failed to start, read the corresponding `/tmp/*-e2e.log` before retrying anything.
 
 ## Reporting
@@ -52,4 +52,4 @@ downloaded and opened correctly) — not just "navigated successfully."
 ## Concrete paths in this repo
 
 `tests/specs/`, `tests/pages/`, `tests/helpers/seed-azurite-fixtures.ts`,
-`tests/specs/azurite-seed-guard.spec.ts`, root `start-e2e.sh` / `stop-e2e.sh`.
+`tests/specs/azurite-seed-guard.spec.ts`, root `scripts/start-e2e.sh` (`task start-e2e`) / `scripts/stop-e2e.sh` (`task stop-e2e`).

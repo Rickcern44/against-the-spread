@@ -1,7 +1,11 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+<MudThemeProvider Theme="@AppTheme.Default" IsDarkMode="true" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        <RosterGate RouteData="@routeData" />
     </Found>
     <NotFound>
         <PageTitle>Not found</PageTitle>

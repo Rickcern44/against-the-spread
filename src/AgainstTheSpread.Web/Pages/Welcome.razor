@@ -1,0 +1,21 @@
+@page "/welcome"
+@using AgainstTheSpread.Web.Services
+@inject RosterState State
+@inject NavigationManager Nav
+
+<PageTitle>Welcome</PageTitle>
+
+<div class="page-eyebrow">Season setup</div>
+<h1 class="page-heading">Draft your roster</h1>
+<p class="page-subtitle">Before you can make weekly picks, draft the nine teams you're riding with this season.</p>
+
+<RosterPicker SaveButtonText="Start my season" OnSaved="HandleSavedAsync" />
+
+@code {
+    private Task HandleSavedAsync(IReadOnlyList<string> teamIds)
+    {
+        State.MarkRosterSaved();
+        Nav.NavigateTo("/");
+        return Task.CompletedTask;
+    }
+}

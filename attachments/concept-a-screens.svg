@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="960" viewBox="0 0 1480 960" role="img" aria-labelledby="title desc">
+  <title id="title">Swan League weekly checklist concept, phone and desktop</title>
+  <desc id="desc">Annotated wireframes show a mobile checklist with two of three starters and no dog selected, and a desktop layout with a pick list and review rail. Both distinguish a personal saved record from the commissioner's Google Form submission.</desc>
+  <style>
+    text{font-family:Arial,Helvetica,sans-serif;fill:#e8eef5;font-size:18px} .small{font-size:15px;fill:#aebdca}.tiny{font-size:13px;fill:#aebdca}.head{font-size:30px;font-weight:700}.sub{font-size:19px;font-weight:700}.phone{fill:#0e1722;stroke:#51667a;stroke-width:2}.panel{fill:#182735;stroke:#40566b;stroke-width:1.5}.line{stroke:#40566b;stroke-width:1}.accent{fill:#59d0ba}.warn{fill:#ffd17a}.muted{fill:#aebdca}.pill{fill:#28404c}.button{fill:#58cdb8}.buttonText{fill:#092127;font-weight:700}.callout{fill:#203847;stroke:#59d0ba;stroke-width:1.5}
+  </style>
+  <rect width="1480" height="960" fill="#09121b"/>
+  <text x="48" y="52" class="head">Weekly checklist · concept A</text>
+  <text x="48" y="80" class="small">Swan League personal tracker  •  Illustrative selections  •  Design review only</text>
+  <text x="48" y="124" class="sub">PHONE · 390px structure</text>
+  <rect x="48" y="145" width="390" height="744" rx="24" class="phone"/>
+  <text x="70" y="181" class="small">This week                                      Week 5 ▾</text>
+  <text x="70" y="217" class="sub">My weekly picks</text>
+  <text x="70" y="244" class="small">Personal record · not submitted to league</text>
+  <rect x="68" y="266" width="350" height="88" rx="12" class="panel"/>
+  <text x="86" y="294">2 of 3 starters</text>
+  <text x="86" y="320" class="warn">Choose one more  →</text>
+  <text x="86" y="344" class="tiny">Starter deadline Sun 1:00 PM ET</text>
+  <rect x="68" y="366" width="350" height="68" rx="12" class="panel"/>
+  <text x="86" y="393">0 of 1 dog</text>
+  <text x="86" y="420" class="warn">Choose an underdog  →</text>
+  <text x="70" y="471" class="sub">Recorded starters</text>
+  <rect x="68" y="489" width="350" height="67" rx="10" class="panel"/>
+  <text x="86" y="516">Detroit Lions</text><text x="318" y="516" class="accent">4 pts</text>
+  <text x="86" y="540" class="tiny">vs opponent · result pending</text>
+  <rect x="68" y="566" width="350" height="67" rx="10" class="panel"/>
+  <text x="86" y="593">Kansas City Chiefs</text><text x="318" y="593" class="accent">3 pts</text>
+  <text x="86" y="617" class="tiny">vs opponent · result pending</text>
+  <text x="70" y="671" class="small">Recommended starters ▾  Why?</text>
+  <rect x="68" y="701" width="350" height="55" rx="10" fill="#314954"/>
+  <text x="142" y="735" class="small">Save my record · incomplete</text>
+  <text x="70" y="790" class="tiny">Submit picks separately in Google Form</text>
+  <line x1="68" y1="811" x2="418" y2="811" class="line"/>
+  <text x="77" y="845" class="small">This week</text><text x="199" y="845" class="small">My totals</text><text x="321" y="845" class="small">History</text>
+  <text x="484" y="124" class="sub">DESKTOP · 1280px structure</text>
+  <rect x="484" y="145" width="948" height="744" rx="15" class="phone"/>
+  <text x="518" y="187" class="sub">Swan League</text><text x="839" y="187" class="small">This week     My totals     History</text><text x="1310" y="187" class="small">Week 5 ▾</text>
+  <line x1="508" y1="208" x2="1408" y2="208" class="line"/>
+  <text x="518" y="255" class="head">Record this week's picks</text>
+  <text x="518" y="286" class="small">Starters due Sunday 1:00 PM ET  •  Dogs due before their game kicks off</text>
+  <rect x="508" y="311" width="603" height="501" rx="12" class="panel"/>
+  <text x="532" y="347" class="sub">Your 9 roster teams</text><text x="532" y="374" class="small">2 selected · choose 1 more</text>
+  <line x1="530" y1="393" x2="1088" y2="393" class="line"/>
+  <text x="532" y="430">✓  Detroit Lions</text><text x="932" y="430" class="accent">4 pts</text>
+  <text x="532" y="472">✓  Kansas City Chiefs</text><text x="932" y="472" class="accent">3 pts</text>
+  <text x="532" y="514">□  New York Giants</text><text x="932" y="514" class="accent">4 pts</text>
+  <text x="532" y="556" class="muted">–  Bye-week team · unavailable</text>
+  <line x1="530" y1="582" x2="1088" y2="582" class="line"/>
+  <text x="532" y="619" class="sub">Choose your dog · 0 of 1</text>
+  <text x="532" y="649" class="small">All underdogs, including teams outside your roster</text>
+  <text x="532" y="691">□  Washington +8.5</text><text x="898" y="691" class="small">9 pts if win</text>
+  <text x="532" y="730">□  Arizona +7.5</text><text x="898" y="730" class="small">8 pts if win</text>
+  <text x="532" y="780" class="tiny">See full slate  →    Recommendations are optional</text>
+  <rect x="1128" y="311" width="280" height="501" rx="12" class="panel"/>
+  <text x="1150" y="347" class="sub">Review my record</text>
+  <text x="1150" y="383">Starters 2 / 3</text><text x="1150" y="413" class="small">Lions · Chiefs</text>
+  <text x="1150" y="457">Dogs 0 / 1</text><text x="1150" y="487" class="warn">One dog missing</text>
+  <line x1="1150" y1="516" x2="1386" y2="516" class="line"/>
+  <text x="1150" y="554" class="small">Personal score</text><text x="1150" y="584">Pending games</text>
+  <text x="1150" y="620" class="small">Main · Dog · Regular</text>
+  <text x="1150" y="645" class="tiny">Playoff total in My totals</text>
+  <rect x="1150" y="695" width="236" height="50" rx="9" fill="#314954"/>
+  <text x="1172" y="726" class="small">Save · incomplete</text>
+  <text x="1150" y="775" class="tiny">Save ≠ Google Form submission</text>
+  <rect x="50" y="906" width="1380" height="37" rx="8" class="callout"/>
+  <text x="68" y="931" class="small">Rules shown: 3 roster starters · week-defined dog count · outright wins · separate official submission · no invented league rank</text>
+</svg>
